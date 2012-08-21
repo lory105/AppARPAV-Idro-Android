@@ -58,10 +58,9 @@ public class Util {
 		return listStations;		
 	}
 	
-	public static boolean loaded(){
+	public static boolean listStationIsLoaded(){
 		if(listStations == null ) return false;
 		return true;
-	
 	}
 	
 }
