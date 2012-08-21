@@ -1,0 +1,16 @@
+<resources>
+
+    <string name="app_name">App Arpav Idro</string>
+    <string name="hello_world">Hello world!</string>
+    <string name="menu_settings">Settings</string>
+    <string name="title_activity_favorites_sensor">FavoritesSensor</string>
+    <string name="favorites">Preferiti</string>
+    <string name="all">Tutti</string>
+    <string name="empty_sensor">Nessun preferito selezionato</string>
+    <string name="empty_sensor_note">Vai alla sezione Tutti per visualizzare tutte le stazioni ed iniziare ad aggiungerle ai tuoi preferiti</string>
+
+    <color name="black">#000000</color>
+
+    <string name="title_activity_all_sensor">AllSensorActivity</string>
+
+</resources>
