@@ -13,5 +13,6 @@
 
     <string name="title_activity_all_sensor">AllSensorActivity</string>
     <string name="title_activity_splash_screen">SplashScreenActivity</string>
+    <string name="titleMap">Mappa Idrometrica</string>
 
 </resources>

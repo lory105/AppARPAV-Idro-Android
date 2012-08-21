@@ -34,7 +34,7 @@ public class SplashScreenActivity extends Activity {
 	                finish();
 	                
 	                Intent i = new Intent();
-	                i.setClass(sPlashScreen, FavoritesSensorActivity.class);
+	                i.setClass(sPlashScreen, MapSensorActivity.class);
 	        		startActivity(i);
 	                
 	                stop();

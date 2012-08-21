@@ -11,14 +11,14 @@ import android.view.View;
 import android.widget.Button;
 
 
-public class FavoritesSensorActivity extends Activity {
+public class MapSensorActivity extends Activity {
 	private ProgressDialog pdToLoadStations = null;
 	
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         
-        setContentView(R.layout.activity_favorites_sensor);
+        setContentView(R.layout.activity_map_sensor);
         
         pdToLoadStations = ProgressDialog.show(this, "Caricamento..", "Ricerca delle stationi", true, true);
         

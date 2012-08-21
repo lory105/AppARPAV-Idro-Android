@@ -35,7 +35,7 @@ public class AllSensorActivity extends Activity {
 			public void onClick(View v) {
 				btnFavorites.setBackgroundDrawable(getApplicationContext().getResources().getDrawable(R.drawable.bg_footer_reversed));
 				Intent newintent = new Intent();
-				newintent.setClass( getApplication(), FavoritesSensorActivity.class);
+				newintent.setClass( getApplication(), MapSensorActivity.class);
 
 				startActivity(newintent);
 			}
