@@ -1,5 +1,6 @@
 package it.arpav.mobile.apparpav.utils;
 
+import it.arpav.mobile.apparpav.exceptions.XmlNullExc;
 import it.arpav.mobile.apparpav.types.Station;
 
 import java.util.ArrayList;
@@ -41,19 +42,21 @@ public class Util {
 	/**
 	 * Load the list of Stations from xml in the url
 	*/
-	public static void loadListStations(){
+	public static void loadListStations(Context context) throws XmlNullExc{
 		if(listStations == null ){
 		
 			XMLParser xmlParser = new XMLParser();
 			String xml = xmlParser.getXmlFromUrl( KEY_INDEX_STATIONS_URL );
-			Document doc = xmlParser.getDomElementFromString(xml);
+			Document doc = xmlParser.getDomElementFromString(context, xml);
+			// doc way be null if getDomElement return null
+			
 			listStations = xmlParser.parseXmlIndexStations(doc);
 		}
 	}
 	
-	public static ArrayList<Station> getListStations(){
+	public static ArrayList<Station> getListStations(Context context) throws XmlNullExc {
 		if(listStations == null )
-			loadListStations();
+			loadListStations(context);
 		
 		return listStations;		
 	}

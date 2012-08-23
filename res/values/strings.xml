@@ -12,7 +12,12 @@
 
     <string name="title_activity_all_sensor">AllSensorActivity</string>
     <string name="titleMap">Mappa Idrometrica</string>
-    <string name="allertDialogTitleGps">Segnale GPS disattivato</string>
-    <string name="allertDialogMessageGps">Attivare il Gps per rilevare la propria posizione nella mappa?</string>
+    <string name="alertDialogGpsTitle">Segnale GPS disattivato</string>
+    <string name="alertDialogGpsMessage">Attivare il Gps per rilevare la propria posizione nella mappa?</string>
+    <string name="loading">Caricamento..</string>
+    <string name="loadingData">Caricamento dei dati</string>
+    <string name="alertDialogNetworkTitle">Connessione non disponibile</string>
+    <string name="alertDialogNetworkMessage">Connettiti alla rete per visualizzare correttamente i dati</string>
+    <string name="btnClose">Chiudi</string>
 
 </resources>

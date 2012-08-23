@@ -1,6 +1,7 @@
 package it.arpav.mobile.apparpav.utils;
 
 import it.arpav.mobile.apparpav.types.Station;
+import it.arpav.mobile.apparpav.exceptions.XmlNullExc;
 
 import java.io.IOException;
 import java.io.StringReader;
@@ -25,7 +26,9 @@ import org.w3c.dom.NodeList;
 import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
 
+import android.content.Context;
 import android.util.Log;
+import android.widget.Toast;
 
 /**
  * Utilities
@@ -74,7 +77,9 @@ public class XMLParser {
 	/**
 	 * Parsing XML content from string and getting DOM element 
 	*/
-	public Document getDomElementFromString(String xml){
+	public Document getDomElementFromString(Context context, String xml) throws XmlNullExc {
+		if(xml == null ) throw new XmlNullExc(); 
+		
 	    Document doc = null;
 	    DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
 	    	try {

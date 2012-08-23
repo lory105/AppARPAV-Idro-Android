@@ -1,14 +1,20 @@
 package it.arpav.mobile.apparpav.main;
 
+import it.arpav.mobile.apparpav.exceptions.XmlNullExc;
 import it.arpav.mobile.apparpav.utils.Util;
 import net.londatiga.android.ActionItem;
 import net.londatiga.android.QuickAction;
 import net.londatiga.android.R;
+import android.app.AlertDialog;
 import android.app.ProgressDialog;
+import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
+import android.location.LocationManager;
 import android.os.Bundle;
 import android.os.CountDownTimer;
 import android.provider.Settings;
+import android.util.Log;
 import android.view.Menu;
 import android.view.View;
 import android.widget.Button;
@@ -31,11 +37,12 @@ public class MapSensorActivity extends MapActivity {
 	// -------------------------------------------------------
 	private MapController mapController;
 	private MapView mapView;
-	
+	private LocationManager locationManager;
 	
 	
 	// -------------------------------------------------------
-	private static int initialLat = (int) (45.7345683 *1E6);
+	// initial coordinates to center map
+	private static int initialLat = (int) (45.6945683 *1E6);
 	private static int initialLon = (int) (11.8765886 *1E6);
 	// -------------------------------------------------------
 	
@@ -52,23 +59,44 @@ public class MapSensorActivity extends MapActivity {
 		mapView.setBuiltInZoomControls(true);
 		mapView.setSatellite(false);
 		mapController = mapView.getController();
-		// -------------------------------------------------------
+
+		// jump the center of the map to these coordinates
         GeoPoint point = new GeoPoint(initialLat , initialLon);
         mapController.animateTo(point);
-    	// -------------------------------------------------------
-		mapController.setZoom(9); // Zoom 1 is world view
-		// -------------------------------------------------------
-		
-		
-        pdToLoadStations = ProgressDialog.show(this, "Caricamento..", "Ricerca delle stationi", true, true);
         
-        new CountDownTimer(1000, 1000) {
-           public void onTick(long millisUntilFinished) {}
-
-           public void onFinish() {
-               updateDispaly();
-           }
-        }.start();
+		mapController.setZoom(9); // Zoom 1 is world view
+		locationManager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
+		
+//		if ( Util.listStationIsLoaded() ){
+//			Log.d("listStation", "is loaded");
+//			try{
+//				Integer i= Util.getListStations(this).size();
+//				Log.d("listStation", i.toString());
+//			} catch (XmlNullExc e){}
+//		}
+//		else Log.d("listStation", "is NOT loaded");
+		
+		// -------------------------------------------------------
+		final boolean gpsEnabled = locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER);
+		
+		if( Util.isOnline(this)){
+			pdToLoadStations = ProgressDialog.show(this, getString(R.string.loading), getString(R.string.loadingData), true, true);
+        
+			new CountDownTimer(2000, 1000) {
+				public void onTick(long millisUntilFinished) {}
+				public void onFinish() {
+					loadStations();
+					if(!gpsEnabled )
+						showGpsAlertDialog();
+					
+					updateDispaly();
+				}
+			}.start();
+		}
+		else{
+			showNetworkAlertDialog();
+			updateDispaly();
+		}
 
     }
 
@@ -85,9 +113,58 @@ public class MapSensorActivity extends MapActivity {
     }
 
     
+    private void showNetworkAlertDialog(){
+		AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(this);
+		 
+		// set title
+		alertDialogBuilder.setTitle(R.string.alertDialogNetworkTitle);
+ 
+		// set dialog message
+		alertDialogBuilder
+			.setMessage(R.string.alertDialogNetworkMessage)
+			.setCancelable(false)
+			.setPositiveButton(R.string.btnClose, new DialogInterface.OnClickListener() {
+				public void onClick(DialogInterface dialog,int id) {
+					dialog.cancel();
+				}
+			});
+ 
+			// create alert dialog
+			AlertDialog alertDialog = alertDialogBuilder.create();
+			alertDialog.show();
+    }
+    
+    private void showGpsAlertDialog(){
+		AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(this);
+		 
+		// set title
+		alertDialogBuilder.setTitle(R.string.alertDialogGpsTitle);
+ 
+		// set dialog message
+		alertDialogBuilder
+			.setMessage(R.string.alertDialogGpsMessage)
+			.setCancelable(false)
+				.setPositiveButton("Si",new DialogInterface.OnClickListener() {
+					public void onClick(DialogInterface dialog,int id) {
+						Intent intent = new Intent(Settings.ACTION_LOCATION_SOURCE_SETTINGS);
+						startActivity(intent);
+					}
+				})
+				.setNegativeButton("No",new DialogInterface.OnClickListener() {
+					public void onClick(DialogInterface dialog,int id) {
+						dialog.cancel();
+					}
+				});
+ 
+			// create alert dialog
+			AlertDialog alertDialog = alertDialogBuilder.create();
+			alertDialog.show();
+    }
+    
     
     public void updateDispaly(){
 		// ---------------------------------------------
+    	// create menu option
 		ActionItem myLocationItem 	= new ActionItem(ID_MY_LOCATION, "Mia posizione", getResources().getDrawable(R.drawable.location));
 		ActionItem nearestItem   	= new ActionItem(ID_NEAREST_STATION, "Stazione piu vicina", getResources().getDrawable(R.drawable.location));
         ActionItem activeGpsItem 	= new ActionItem(ID_ACTIVE_GPS, "Attiva GPS", getResources().getDrawable(R.drawable.gps));
@@ -102,9 +179,6 @@ public class MapSensorActivity extends MapActivity {
 		mQuickAction.addActionItem(nearestItem);
 		mQuickAction.addActionItem(activeGpsItem);
 		
-		
-        
-        
 		//setup the action item click listener
 		mQuickAction.setOnActionItemClickListener(new QuickAction.OnActionItemClickListener() {
 			@Override
@@ -132,7 +206,7 @@ public class MapSensorActivity extends MapActivity {
 		    });
 		// ---------------------------------------------
         
-    	 // btn_favorites is active
+    	// btn_favorites is active da togliere
 		final Button btnFavorites = (Button) this.findViewById(R.id.btn_favorites);
 		btnFavorites.setBackgroundDrawable(this.getResources().getDrawable(R.drawable.bg_footer_reversed));
 		
@@ -148,16 +222,18 @@ public class MapSensorActivity extends MapActivity {
 				startActivity(newintent);
 			}
 		});
-
-
-		Util.getListStations();
-		if( Util.listStationIsLoaded() != false)
-			pdToLoadStations.dismiss();
-			
-//			Toast toast = Toast.makeText(getBaseContext(), "non memorizzato", Toast.LENGTH_SHORT);
-//			toast.setGravity(Gravity.BOTTOM, 0, 25);
-//			toast.show();
+		// ---------------------------------------------
 		
+		if(pdToLoadStations != null)
+			pdToLoadStations.dismiss();
+        
+		
+//		loadStations();
+//		pdToLoadStations.dismiss();
+		
+		if( Util.listStationIsLoaded() != false){
+			// TODO
+		}
 		
     }
     
@@ -166,8 +242,20 @@ public class MapSensorActivity extends MapActivity {
     public void onBackPressed() {
     	// TODO Auto-generated method stub
     	super.onBackPressed();
-    	finish();
+    	//finish();
     }
+    
+    
+    // parse the xml index stations and create the Util.listStations
+    private void loadStations(){
+		try{
+			Util.getListStations(this);
+		} catch( XmlNullExc e ){
+			// TODO
+			Toast.makeText(getApplicationContext(), "XmlNullExc", Toast.LENGTH_SHORT).show();
+		}
+    }
+    
     
     
 }
