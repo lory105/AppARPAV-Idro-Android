@@ -40,17 +40,61 @@
         android:background="@drawable/bg_gradient_top_bar" >
 
         <TextView
-            android:id="@+id/municipality"
+            android:id="@+id/titleMap"
             android:layout_width="fill_parent"
             android:layout_height="wrap_content"
             android:layout_alignParentLeft="true"
             android:layout_centerVertical="true"
-            
-            android:gravity="center"
+            android:layout_marginLeft="7dp"
+            android:gravity="left"
             android:text="@string/titleMap"
             android:textColor="#FFF"
             android:textSize="19dp"
             android:typeface="sans" />
+        
+                <ImageView
+            android:id="@+id/bar2"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="2dp"
+            android:layout_marginTop="2dp"
+            android:maxWidth="1dp"
+            android:layout_toLeftOf="@+id/button_menu"
+            android:src="@drawable/status_bar_item_app_background_normal" />
+        
+        <ImageButton
+            android:id="@+id/button_menu"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentBottom="true"
+            android:layout_alignParentTop="true"
+            android:layout_toLeftOf="@+id/bar3"
+            android:layout_margin="3dp"
+            android:background="@drawable/button_menu" />
+        
+        <ImageView
+            android:id="@+id/bar3"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="2dp"
+            android:layout_marginTop="2dp"
+            android:maxWidth="1dp"
+            android:layout_toLeftOf="@+id/button_swype_right"
+            android:src="@drawable/status_bar_item_app_background_normal" />
+        
+        <ImageButton
+            android:id="@+id/button_swype_right"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentBottom="true"
+            android:layout_alignParentRight="true"
+            android:layout_alignParentTop="true"
+            android:layout_marginTop="6dp"
+            android:layout_marginBottom="5dp"
+            android:background="@drawable/button_swipe_right"
+            android:text="" />
+        
+        
     </RelativeLayout>
     
     <LinearLayout
@@ -60,7 +104,10 @@
         android:layout_weight="0.75"
         android:background="#E4E4E4"
         android:paddingTop="5dp" >
+        
+    
     </LinearLayout>
+
 
     <LinearLayout
         xmlns:android="http://schemas.android.com/apk/res/android"
