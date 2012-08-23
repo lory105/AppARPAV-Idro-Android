@@ -1,10 +1,9 @@
 package it.arpav.mobile.apparpav.main;
 
+import it.arpav.mobile.apparpav.utils.Util;
 import net.londatiga.android.ActionItem;
 import net.londatiga.android.QuickAction;
 import net.londatiga.android.R;
-import it.arpav.mobile.apparpav.utils.Util;
-import android.app.Activity;
 import android.app.ProgressDialog;
 import android.content.Intent;
 import android.os.Bundle;
@@ -16,13 +15,29 @@ import android.widget.Button;
 import android.widget.ImageButton;
 import android.widget.Toast;
 
+import com.google.android.maps.GeoPoint;
+import com.google.android.maps.MapActivity;
+import com.google.android.maps.MapController;
+import com.google.android.maps.MapView;
 
-public class MapSensorActivity extends Activity {
+
+public class MapSensorActivity extends MapActivity {
 	
 	//action id of button_menu
 	private static final int ID_MY_LOCATION     = 1;
 	private static final int ID_NEAREST_STATION = 2;
 	private static final int ID_ACTIVE_GPS 		= 3;
+
+	// -------------------------------------------------------
+	private MapController mapController;
+	private MapView mapView;
+	
+	
+	
+	// -------------------------------------------------------
+	private static int initialLat = (int) (45.7345683 *1E6);
+	private static int initialLon = (int) (11.8765886 *1E6);
+	// -------------------------------------------------------
 	
 	private ProgressDialog pdToLoadStations = null;
 	
@@ -32,6 +47,19 @@ public class MapSensorActivity extends Activity {
         
         setContentView(R.layout.activity_map_sensor);
         
+		// Configure the Map
+		mapView = (MapView) findViewById(R.id.mapview);
+		mapView.setBuiltInZoomControls(true);
+		mapView.setSatellite(false);
+		mapController = mapView.getController();
+		// -------------------------------------------------------
+        GeoPoint point = new GeoPoint(initialLat , initialLon);
+        mapController.animateTo(point);
+    	// -------------------------------------------------------
+		mapController.setZoom(9); // Zoom 1 is world view
+		// -------------------------------------------------------
+		
+		
         pdToLoadStations = ProgressDialog.show(this, "Caricamento..", "Ricerca delle stationi", true, true);
         
         new CountDownTimer(1000, 1000) {
@@ -48,6 +76,12 @@ public class MapSensorActivity extends Activity {
     public boolean onCreateOptionsMenu(Menu menu) {
         getMenuInflater().inflate(R.menu.activity_favorites_sensor, menu);
         return true;
+    }
+
+    
+    @Override
+    protected boolean isRouteDisplayed() {
+        return false;
     }
 
     

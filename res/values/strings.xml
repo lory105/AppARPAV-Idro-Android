@@ -1,6 +1,6 @@
 <resources>
 
-    <string name="app_name">App Arpav Idro</string>
+    <string name="app_name">ARPAV Idro</string>
     <string name="menu_settings">Settings</string>
     <string name="title_activity_favorites_sensor">FavoritesSensor</string>
     <string name="favorites">Preferiti</string>
@@ -11,7 +11,6 @@
     <color name="black">#000000</color>
 
     <string name="title_activity_all_sensor">AllSensorActivity</string>
-    <string name="title_activity_splash_screen">SplashScreenActivity</string>
     <string name="titleMap">Mappa Idrometrica</string>
     <string name="allertDialogTitleGps">Segnale GPS disattivato</string>
     <string name="allertDialogMessageGps">Attivare il Gps per rilevare la propria posizione nella mappa?</string>
