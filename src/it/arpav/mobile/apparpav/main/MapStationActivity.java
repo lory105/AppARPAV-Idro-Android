@@ -2,6 +2,9 @@ package it.arpav.mobile.apparpav.main;
 
 import it.arpav.mobile.apparpav.exceptions.XmlNullExc;
 import it.arpav.mobile.apparpav.utils.Util;
+
+import java.util.List;
+
 import net.londatiga.android.ActionItem;
 import net.londatiga.android.QuickAction;
 import net.londatiga.android.R;
@@ -10,11 +13,12 @@ import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.graphics.drawable.Drawable;
+import android.location.Location;
+import android.location.LocationListener;
 import android.location.LocationManager;
 import android.os.Bundle;
-import android.os.CountDownTimer;
 import android.provider.Settings;
-import android.util.Log;
 import android.view.Menu;
 import android.view.View;
 import android.widget.Button;
@@ -25,9 +29,12 @@ import com.google.android.maps.GeoPoint;
 import com.google.android.maps.MapActivity;
 import com.google.android.maps.MapController;
 import com.google.android.maps.MapView;
+import com.google.android.maps.MyLocationOverlay;
+import com.google.android.maps.Overlay;
+import com.google.android.maps.OverlayItem;
 
 
-public class MapSensorActivity extends MapActivity {
+public class MapStationActivity extends MapActivity {
 	
 	//action id of button_menu
 	private static final int ID_MY_LOCATION     = 1;
@@ -38,6 +45,7 @@ public class MapSensorActivity extends MapActivity {
 	private MapController mapController;
 	private MapView mapView;
 	private LocationManager locationManager;
+	private MyLocationOverlay myLocationOverlay;
 	
 	
 	// -------------------------------------------------------
@@ -79,24 +87,41 @@ public class MapSensorActivity extends MapActivity {
 		// -------------------------------------------------------
 		final boolean gpsEnabled = locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER);
 		
+		locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 20000,
+				50, new GeoUpdateHandler());
+
+		myLocationOverlay = new MyLocationOverlay(this, mapView);
+		mapView.getOverlays().add(myLocationOverlay);
+		
+		
 		if( Util.isOnline(this)){
 			pdToLoadStations = ProgressDialog.show(this, getString(R.string.loading), getString(R.string.loadingData), true, true);
         
-			new CountDownTimer(2000, 1000) {
-				public void onTick(long millisUntilFinished) {}
-				public void onFinish() {
+//			new CountDownTimer(2000, 1000) {
+//				public void onTick(long millisUntilFinished) {}
+//				public void onFinish() {
 					loadStations();
 					if(!gpsEnabled )
 						showGpsAlertDialog();
 					
 					updateDispaly();
-				}
-			}.start();
+//				}
+//			}.start();
 		}
 		else{
 			showNetworkAlertDialog();
 			updateDispaly();
 		}
+		
+		List<Overlay> mapOverlays = mapView.getOverlays();
+		Drawable drawable = this.getResources().getDrawable(R.drawable.red16);
+		StationItemizedOverlay itemizedoverlay = new StationItemizedOverlay(drawable, this);
+		
+		GeoPoint point2 = new GeoPoint((int) (45.7945683 *1E6),(int) (11.8165886 *1E6));
+		OverlayItem overlayitem = new OverlayItem(point2, "Hola, Mundo!", "I'm in Mexico City!");
+		
+		itemizedoverlay.addOverlay(overlayitem);
+		mapOverlays.add(itemizedoverlay);
 
     }
 
@@ -257,5 +282,44 @@ public class MapSensorActivity extends MapActivity {
     }
     
     
+	public class GeoUpdateHandler implements LocationListener {
+
+		@Override
+		public void onLocationChanged(Location location) {
+			int lat = (int) (location.getLatitude() * 1E6);
+			int lng = (int) (location.getLongitude() * 1E6);
+			GeoPoint point = new GeoPoint(lat, lng);
+			//createMarker();
+			//mapController.animateTo(point); // mapController.setCenter(point);
+
+		}
+
+		@Override
+		public void onProviderDisabled(String provider) {
+		}
+
+		@Override
+		public void onProviderEnabled(String provider) {
+		}
+
+		@Override
+		public void onStatusChanged(String provider, int status, Bundle extras) {
+		}
+	}
+    
+	
+	@Override
+	protected void onResume() {
+		super.onResume();
+		myLocationOverlay.enableMyLocation();
+		myLocationOverlay.enableCompass();
+	}
+
+	@Override
+	protected void onPause() {
+		super.onResume();
+		myLocationOverlay.disableMyLocation();
+		myLocationOverlay.disableCompass();
+	}
     
 }

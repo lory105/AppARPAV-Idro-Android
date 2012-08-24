@@ -7,7 +7,7 @@ import android.view.MotionEvent;
 
 public class SplashScreenActivity extends Activity {
 	
-	protected int _splashTime = 1000; 
+	protected int _splashTime = 700; 
 	
 	private Thread splashTread;
 	
@@ -34,7 +34,7 @@ public class SplashScreenActivity extends Activity {
 	                finish();
 	                
 	                Intent i = new Intent();
-	                i.setClass(sPlashScreen, MapSensorActivity.class);
+	                i.setClass(sPlashScreen, MapStationActivity.class);
 	        		startActivity(i);
 	                
 	                stop();
