@@ -22,12 +22,12 @@ import it.arpav.mobile.apparpav.types.Station;
 import com.google.android.maps.GeoPoint;
 import com.google.android.maps.OverlayItem;
 
-public class StationOverlayItem extends OverlayItem {
+public class CustomOverlayItem extends OverlayItem {
 
 	protected Station station;
 	
-	public StationOverlayItem(GeoPoint point, Station station) {
-		super(point, station.getName(), station.getReservoir());
+	public CustomOverlayItem(GeoPoint point, Station station) {
+		super(point, station.getName(), "Bacino: " + station.getReservoir());
 		this.station = station;
 	}
 

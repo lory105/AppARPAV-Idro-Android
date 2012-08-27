@@ -15,8 +15,8 @@ import com.google.android.maps.OverlayItem;
 
 import com.readystatesoftware.mapviewballoons.BalloonItemizedOverlay;
 
-public class StationItemizedOverlay extends BalloonItemizedOverlay<OverlayItem> {
-	private ArrayList<OverlayItem> mOverlays = new ArrayList<OverlayItem>();
+public class StationItemizedOverlay extends BalloonItemizedOverlay<CustomOverlayItem> {
+	private ArrayList<CustomOverlayItem> mOverlays = new ArrayList<CustomOverlayItem>();
 	private Context context;
 
 	
@@ -26,7 +26,7 @@ public class StationItemizedOverlay extends BalloonItemizedOverlay<OverlayItem> 
 	}
 
 	@Override
-	protected OverlayItem createItem(int i) {
+	protected CustomOverlayItem createItem(int i) {
 		return mOverlays.get(i);
 	}
 
@@ -35,14 +35,15 @@ public class StationItemizedOverlay extends BalloonItemizedOverlay<OverlayItem> 
 	  return mOverlays.size();
 	}
 
-	public void addOverlay(OverlayItem overlay) {
+	public void addOverlay(CustomOverlayItem overlay) {
 	    mOverlays.add(overlay);
 	    populate();
 	}
 
 	@Override
-	protected boolean onBalloonTap(int index, OverlayItem item) {
-		Toast.makeText(context, "onBalloonTap for overlay index " + index + item.getTitle(),
+	protected boolean onBalloonTap(int index, CustomOverlayItem item) {
+		
+		Toast.makeText(context, "onBalloonTap for overlay index " + index + item.getStation().getId(),
 				Toast.LENGTH_LONG).show();
 		return true;
 	}

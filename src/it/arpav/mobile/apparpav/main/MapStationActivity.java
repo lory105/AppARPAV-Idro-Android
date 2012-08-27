@@ -387,9 +387,9 @@ public class MapStationActivity extends MapActivity {
 			idroStationItemizedOverlay.setSnapToCenter(false);
 			
 			GeoPoint point = new GeoPoint((int) ( station.getCoordinateY()*1E6),(int) (station.getCoordinateX()*1E6));
-			OverlayItem overlayitem = new OverlayItem(point, station.getName(), "Bacino: "+ station.getReservoir() );
+			CustomOverlayItem stationOverlayitem = new CustomOverlayItem(point, station );
 			
-			idroStationItemizedOverlay.addOverlay(overlayitem);
+			idroStationItemizedOverlay.addOverlay(stationOverlayitem);
 			mapOverlays.add(idroStationItemizedOverlay);
 		}
 		
@@ -401,9 +401,9 @@ public class MapStationActivity extends MapActivity {
 			meteoStationItemizedOverlay.setSnapToCenter(false);
 			
 			GeoPoint point = new GeoPoint((int) ( station.getCoordinateY()*1E6),(int) (station.getCoordinateX()*1E6));
-			OverlayItem overlayitem = new OverlayItem(point, station.getName(), "Bacino: "+ station.getReservoir() );
+			CustomOverlayItem stationOverlayitem = new CustomOverlayItem(point, station );
 			
-			meteoStationItemizedOverlay.addOverlay(overlayitem);
+			meteoStationItemizedOverlay.addOverlay(stationOverlayitem);
 			mapOverlays.add(meteoStationItemizedOverlay);
 		}
 		
