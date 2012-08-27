@@ -44,16 +44,24 @@ public class Station {
 		this.coordinateX = coordinateX;
 	}
 	
-	public String getCoordinateX(){
-		return coordinateX;
+//	public String getCoordinateX(){
+//		return coordinateX;
+//	}
+	
+	public double getCoordinateX(){
+		return Double.parseDouble( coordinateX );
 	}
 	
 	public void setCoordinateY( String coordinateY){
 		this.coordinateY = coordinateY;
 	}
 	
-	public String getCoordinateY(){
-		return coordinateY;
+//	public String getCoordinateY(){
+//		return coordinateY;
+//	}
+	
+	public double getCoordinateY(){
+		return Double.parseDouble( coordinateY );
 	}
 	
 	public void setquota( String quota){
@@ -79,8 +87,5 @@ public class Station {
 	public String getType(){
 		return type;
 	}
-	
-
-
 
 }

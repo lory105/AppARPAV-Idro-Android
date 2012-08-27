@@ -104,14 +104,13 @@
         android:layout_weight="0.75"
         android:background="#E4E4E4" >
 
-        <com.google.android.maps.MapView
+        <com.readystatesoftware.maps.TapControlledMapView
             xmlns:android="http://schemas.android.com/apk/res/android"
             android:id="@+id/mapview"
             android:layout_width="fill_parent"
             android:layout_height="fill_parent"
             android:apiKey="0cAL3uyKAK8y0g3BuVfO7Pt-Qe_uEz_zItQeaSw"
-            android:clickable="true" >
-        </com.google.android.maps.MapView>
+            android:clickable="true" />
     
     </LinearLayout>
 

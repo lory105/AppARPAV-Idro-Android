@@ -1,12 +1,13 @@
 package it.arpav.mobile.apparpav.utils;
 
-import it.arpav.mobile.apparpav.types.Station;
 import it.arpav.mobile.apparpav.exceptions.XmlNullExc;
+import it.arpav.mobile.apparpav.types.Station;
 
 import java.io.IOException;
 import java.io.StringReader;
 import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
+import java.util.List;
 
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
@@ -28,7 +29,6 @@ import org.xml.sax.SAXException;
 
 import android.content.Context;
 import android.util.Log;
-import android.widget.Toast;
 
 /**
  * Utilities
@@ -44,7 +44,7 @@ public class XMLParser {
 	static final String KEY_COORDINATE_Y = 	"Y";
 	static final String KEY_QUOTA = 		"QUOTA";
 	static final String KEY_LINK = 			"LINK";
-	static final String KEY_TYPE = 			"TYPE";
+	static final String KEY_TYPE = 			"TIPOSTAZ";
 	
 	
 	/**
@@ -131,8 +131,14 @@ public class XMLParser {
 	/**
 	 * Parses the main xml containing the index of stations and some of their basic information
 	*/
-	public ArrayList<Station> parseXmlIndexStations(Document doc){
-		ArrayList<Station> stationList = new ArrayList<Station>();
+	public List<ArrayList<Station>> parseXmlIndexStations(Document doc){
+		//ArrayList<ArrayList<Station>>[] stationList = new ArrayList<ArrayList<Station>>;
+		
+		List<ArrayList<Station>> listStations = new ArrayList<ArrayList<Station>>();
+
+		
+		ArrayList<Station> idroStationList = new ArrayList<Station>();
+		ArrayList<Station> meteoStationList = new ArrayList<Station>();
 		//Element root=doc.getDocumentElement();
 		
 		
@@ -154,14 +160,18 @@ public class XMLParser {
 			station.setCoordinateX( getValue(elementStation, KEY_COORDINATE_X ) );
 			station.setCoordinateY( getValue(elementStation, KEY_COORDINATE_Y) );
 			station.setLink( getValue(elementStation, KEY_LINK) );
-			//station.setType( getValue(elementStation, KEY_TYPE) );
+			station.setType( getValue(elementStation, KEY_TYPE) );
             
 			Log.d("name", station.getName());
-			
-            stationList.add(station);
+			if( station.getType().equals("IDRO"))
+				idroStationList.add(station);
+			else
+				meteoStationList.add(station);
             
         }
-		return stationList;
+		listStations.add(idroStationList);
+		listStations.add(meteoStationList);
+		return listStations;
 		
 	}
 	

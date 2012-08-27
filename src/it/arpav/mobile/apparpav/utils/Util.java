@@ -4,6 +4,7 @@ import it.arpav.mobile.apparpav.exceptions.XmlNullExc;
 import it.arpav.mobile.apparpav.types.Station;
 
 import java.util.ArrayList;
+import java.util.List;
 
 import org.w3c.dom.Document;
 
@@ -19,7 +20,7 @@ import android.util.Log;
 
 public class Util {
 	static private String KEY_INDEX_STATIONS_URL= "http://www.arpa.veneto.it/upload_teolo/dati_xml/Ultime48ore_idx.xml";
-	static private ArrayList<Station> listStations =null;
+	static private List<ArrayList<Station>> listStations =null;
 	
 	/**
 	 * Check for internet connection.
@@ -54,9 +55,12 @@ public class Util {
 		}
 	}
 	
-	public static ArrayList<Station> getListStations(Context context) throws XmlNullExc {
-		if(listStations == null )
+	public static List<ArrayList<Station>> getListStations(Context context) throws XmlNullExc {
+		if(listStations == null ){
+			Log.d("getListStation", "NULL");
 			loadListStations(context);
+			
+		}
 		
 		return listStations;		
 	}

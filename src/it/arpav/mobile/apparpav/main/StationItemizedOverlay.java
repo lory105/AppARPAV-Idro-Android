@@ -10,17 +10,19 @@ import android.graphics.drawable.Drawable;
 import android.widget.Toast;
 
 import com.google.android.maps.ItemizedOverlay;
+import com.google.android.maps.MapView;
 import com.google.android.maps.OverlayItem;
 
+import com.readystatesoftware.mapviewballoons.BalloonItemizedOverlay;
 
-public class StationItemizedOverlay extends ItemizedOverlay<OverlayItem> {
+public class StationItemizedOverlay extends BalloonItemizedOverlay<OverlayItem> {
 	private ArrayList<OverlayItem> mOverlays = new ArrayList<OverlayItem>();
 	private Context context;
 
 	
-	public StationItemizedOverlay( Drawable defaultMarker, Context context) {
-		super(boundCenterBottom(defaultMarker));
-		this.context = context;
+	public StationItemizedOverlay( Drawable defaultMarker, MapView mapView) {
+		super(boundCenter(defaultMarker), mapView);
+		context = mapView.getContext();
 	}
 
 	@Override
@@ -38,30 +40,11 @@ public class StationItemizedOverlay extends ItemizedOverlay<OverlayItem> {
 	    populate();
 	}
 
-	protected boolean onTap(int index) {
-		OverlayItem item = mOverlays.get(index);
-		Builder builder = new AlertDialog.Builder(context);
-		builder.setMessage("This will end the activity");
-		builder.setCancelable(true);
-		builder.setPositiveButton("I agree", new OkOnClickListener());
-		builder.setNegativeButton("No, no", new CancelOnClickListener());
-		AlertDialog dialog = builder.create();
-		dialog.show();
+	@Override
+	protected boolean onBalloonTap(int index, OverlayItem item) {
+		Toast.makeText(context, "onBalloonTap for overlay index " + index + item.getTitle(),
+				Toast.LENGTH_LONG).show();
 		return true;
 	}
 
-	private final class CancelOnClickListener implements
-			DialogInterface.OnClickListener {
-		public void onClick(DialogInterface dialog, int which) {
-			Toast.makeText(context, "You clicked yes", Toast.LENGTH_LONG)
-					.show();
-		}
-	}
-
-	private final class OkOnClickListener implements
-			DialogInterface.OnClickListener {
-		public void onClick(DialogInterface dialog, int which) {
-			Toast.makeText(context, "You clicked no", Toast.LENGTH_LONG).show();
-		}
-	}
 }

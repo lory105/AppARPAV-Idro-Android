@@ -1,8 +1,11 @@
 package it.arpav.mobile.apparpav.main;
 
 import it.arpav.mobile.apparpav.exceptions.XmlNullExc;
+import it.arpav.mobile.apparpav.types.Station;
 import it.arpav.mobile.apparpav.utils.Util;
 
+
+import java.util.ArrayList;
 import java.util.List;
 
 import net.londatiga.android.ActionItem;
@@ -17,9 +20,12 @@ import android.graphics.drawable.Drawable;
 import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.provider.Settings;
+import android.util.Log;
 import android.view.Menu;
+import android.view.MotionEvent;
 import android.view.View;
 import android.widget.Button;
 import android.widget.ImageButton;
@@ -28,10 +34,11 @@ import android.widget.Toast;
 import com.google.android.maps.GeoPoint;
 import com.google.android.maps.MapActivity;
 import com.google.android.maps.MapController;
-import com.google.android.maps.MapView;
 import com.google.android.maps.MyLocationOverlay;
 import com.google.android.maps.Overlay;
 import com.google.android.maps.OverlayItem;
+import com.readystatesoftware.maps.OnSingleTapListener;
+import com.readystatesoftware.maps.TapControlledMapView;
 
 
 public class MapStationActivity extends MapActivity {
@@ -42,11 +49,13 @@ public class MapStationActivity extends MapActivity {
 	private static final int ID_ACTIVE_GPS 		= 3;
 
 	// -------------------------------------------------------
+	private List<Overlay> mapOverlays;
 	private MapController mapController;
-	private MapView mapView;
+	private TapControlledMapView mapView;
 	private LocationManager locationManager;
 	private MyLocationOverlay myLocationOverlay;
-	
+	private StationItemizedOverlay idroStationItemizedOverlay;
+	private StationItemizedOverlay meteoStationItemizedOverlay;
 	
 	// -------------------------------------------------------
 	// initial coordinates to center map
@@ -62,67 +71,71 @@ public class MapStationActivity extends MapActivity {
         
         setContentView(R.layout.activity_map_sensor);
         
+        Log.d("111", "111");
+        
 		// Configure the Map
-		mapView = (MapView) findViewById(R.id.mapview);
+		mapView = (TapControlledMapView) findViewById(R.id.mapview);
+		Log.d("222", "111");
 		mapView.setBuiltInZoomControls(true);
 		mapView.setSatellite(false);
 		mapController = mapView.getController();
-
+        
+		// dismiss balloon upon single tap of MapView (iOS behavior) 
+		mapView.setOnSingleTapListener(new OnSingleTapListener() {		
+			@Override
+			public boolean onSingleTap(MotionEvent e) {
+				idroStationItemizedOverlay.hideAllBalloons();
+				return true;
+			}
+		});
+        Log.d("333", "111");
 		// jump the center of the map to these coordinates
         GeoPoint point = new GeoPoint(initialLat , initialLon);
         mapController.animateTo(point);
         
 		mapController.setZoom(9); // Zoom 1 is world view
 		locationManager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
-		
-//		if ( Util.listStationIsLoaded() ){
-//			Log.d("listStation", "is loaded");
-//			try{
-//				Integer i= Util.getListStations(this).size();
-//				Log.d("listStation", i.toString());
-//			} catch (XmlNullExc e){}
-//		}
-//		else Log.d("listStation", "is NOT loaded");
+        Log.d("444", "111");
+
 		
 		// -------------------------------------------------------
-		final boolean gpsEnabled = locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER);
+
 		
 		locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 20000,
 				50, new GeoUpdateHandler());
-
+        Log.d("555", "111");
 		myLocationOverlay = new MyLocationOverlay(this, mapView);
 		mapView.getOverlays().add(myLocationOverlay);
 		
+		updateDisplay();
 		
 		if( Util.isOnline(this)){
-			pdToLoadStations = ProgressDialog.show(this, getString(R.string.loading), getString(R.string.loadingData), true, true);
-        
-//			new CountDownTimer(2000, 1000) {
-//				public void onTick(long millisUntilFinished) {}
-//				public void onFinish() {
-					loadStations();
-					if(!gpsEnabled )
-						showGpsAlertDialog();
-					
-					updateDispaly();
-//				}
-//			}.start();
+			new InitialTask().execute();
 		}
 		else{
 			showNetworkAlertDialog();
-			updateDispaly();
 		}
 		
-		List<Overlay> mapOverlays = mapView.getOverlays();
-		Drawable drawable = this.getResources().getDrawable(R.drawable.red16);
-		StationItemizedOverlay itemizedoverlay = new StationItemizedOverlay(drawable, this);
+        Log.d("666", "111");
+		mapOverlays = mapView.getOverlays();
 		
-		GeoPoint point2 = new GeoPoint((int) (45.7945683 *1E6),(int) (11.8165886 *1E6));
-		OverlayItem overlayitem = new OverlayItem(point2, "Hola, Mundo!", "I'm in Mexico City!");
-		
-		itemizedoverlay.addOverlay(overlayitem);
-		mapOverlays.add(itemizedoverlay);
-
+//		Drawable drawable = this.getResources().getDrawable(R.drawable.red16);
+//		idroStationItemizedOverlay = new StationItemizedOverlay(drawable, mapView);
+//        Log.d("666", "222");
+//		// set iOS behavior attributes for overlay
+//		idroStationItemizedOverlay.setShowClose(false);
+//		Log.d("777", "111");
+//		idroStationItemizedOverlay.setShowDisclosure(true);
+//		idroStationItemizedOverlay.setSnapToCenter(false);
+//		
+//		
+//		GeoPoint point2 = new GeoPoint((int) (45.7945683 *1E6),(int) (11.8165886 *1E6));
+//		
+//		OverlayItem overlayitem = new OverlayItem(point2, "Hola, Mundo!", "I'm in Mexico City!");
+//		
+//		idroStationItemizedOverlay.addOverlay(overlayitem);
+//		mapOverlays.add(idroStationItemizedOverlay);
+//        Log.d("888", "111");
     }
 
     @Override
@@ -159,6 +172,8 @@ public class MapStationActivity extends MapActivity {
 			alertDialog.show();
     }
     
+    
+    
     private void showGpsAlertDialog(){
 		AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(this);
 		 
@@ -187,7 +202,7 @@ public class MapStationActivity extends MapActivity {
     }
     
     
-    public void updateDispaly(){
+    public void updateDisplay(){
 		// ---------------------------------------------
     	// create menu option
 		ActionItem myLocationItem 	= new ActionItem(ID_MY_LOCATION, "Mia posizione", getResources().getDrawable(R.drawable.location));
@@ -249,17 +264,6 @@ public class MapStationActivity extends MapActivity {
 		});
 		// ---------------------------------------------
 		
-		if(pdToLoadStations != null)
-			pdToLoadStations.dismiss();
-        
-		
-//		loadStations();
-//		pdToLoadStations.dismiss();
-		
-		if( Util.listStationIsLoaded() != false){
-			// TODO
-		}
-		
     }
     
 
@@ -277,7 +281,7 @@ public class MapStationActivity extends MapActivity {
 			Util.getListStations(this);
 		} catch( XmlNullExc e ){
 			// TODO
-			Toast.makeText(getApplicationContext(), "XmlNullExc", Toast.LENGTH_SHORT).show();
+			Toast.makeText(getApplicationContext(), "XmlNullExc - loadStatios() Map Activity ", Toast.LENGTH_SHORT).show();
 		}
     }
     
@@ -322,4 +326,88 @@ public class MapStationActivity extends MapActivity {
 		myLocationOverlay.disableCompass();
 	}
     
+	
+	
+	
+	
+	/**
+	 * ?????????? 
+	 */
+	private class InitialTask extends AsyncTask<Void, Void, Void> {
+		protected void onPreExecute() {
+			pdToLoadStations = ProgressDialog.show(MapStationActivity.this, getString(R.string.loading), getString(R.string.loadingData), true, false);
+
+			// se non si vede il progress dialog, usare qusto:	
+//			MapStationActivity.this.pdToLoadStations = new ProgressDialog(MapStationActivity.this);
+//			MapStationActivity.this.pdToLoadStations.setTitle(getString(R.string.loading));
+//			MapStationActivity.this.pdToLoadStations.setMessage(getString(R.string.loadingData));
+//			MapStationActivity.this.pdToLoadStations.setIndeterminate(true);
+//			MapStationActivity.this.pdToLoadStations.setCancelable(false);
+//			MapStationActivity.this.pdToLoadStations.show();
+		}
+		
+		protected Void doInBackground(Void... unused) {
+//			Context c = MapStationActivity.this.getApplicationContext();
+			loadStations();
+			return null;
+		}
+
+		protected void onPostExecute(Void unused) {
+			try {
+				if (MapStationActivity.this.pdToLoadStations != null)
+					MapStationActivity.this.pdToLoadStations.dismiss();
+			} catch (Exception e) {}
+			populateMap();
+			if(! locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER) )
+				showGpsAlertDialog();
+			
+		}
+	} 
+	
+	
+	protected void populateMap(){
+		List<ArrayList<Station>> listStations = null;
+		try{
+			listStations = Util.getListStations(this);
+		} catch(XmlNullExc e){ 
+			Toast.makeText(getApplicationContext(), "XmlNullExc - populateMap() Map Activity ", Toast.LENGTH_SHORT).show();
+		}
+		
+		ArrayList<Station> idroListStations = listStations.get(0);
+		ArrayList<Station> meteoListStations = listStations.get(1);
+		
+		Drawable drawableIdro = this.getResources().getDrawable(R.drawable.red16);
+		Drawable drawableMeteo = this.getResources().getDrawable(R.drawable.blue16);
+		
+		for(int i=0; i<idroListStations.size(); i++ ){
+			Station station = idroListStations.get(i);
+			idroStationItemizedOverlay = new StationItemizedOverlay(drawableIdro, mapView);
+			idroStationItemizedOverlay.setShowClose(false);
+			idroStationItemizedOverlay.setShowDisclosure(true);
+			idroStationItemizedOverlay.setSnapToCenter(false);
+			
+			GeoPoint point = new GeoPoint((int) ( station.getCoordinateY()*1E6),(int) (station.getCoordinateX()*1E6));
+			OverlayItem overlayitem = new OverlayItem(point, station.getName(), "Bacino: "+ station.getReservoir() );
+			
+			idroStationItemizedOverlay.addOverlay(overlayitem);
+			mapOverlays.add(idroStationItemizedOverlay);
+		}
+		
+		for(int i=0; i<meteoListStations.size(); i++ ){
+			Station station = meteoListStations.get(i);
+			meteoStationItemizedOverlay = new StationItemizedOverlay(drawableMeteo, mapView);
+			meteoStationItemizedOverlay.setShowClose(false);
+			meteoStationItemizedOverlay.setShowDisclosure(true);
+			meteoStationItemizedOverlay.setSnapToCenter(false);
+			
+			GeoPoint point = new GeoPoint((int) ( station.getCoordinateY()*1E6),(int) (station.getCoordinateX()*1E6));
+			OverlayItem overlayitem = new OverlayItem(point, station.getName(), "Bacino: "+ station.getReservoir() );
+			
+			meteoStationItemizedOverlay.addOverlay(overlayitem);
+			mapOverlays.add(meteoStationItemizedOverlay);
+		}
+		
+	}
+
+
 }
