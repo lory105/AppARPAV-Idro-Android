@@ -4,7 +4,6 @@ import it.arpav.mobile.apparpav.exceptions.XmlNullExc;
 import it.arpav.mobile.apparpav.types.Station;
 import it.arpav.mobile.apparpav.utils.Util;
 
-
 import java.util.ArrayList;
 import java.util.List;
 
@@ -16,6 +15,7 @@ import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.graphics.drawable.Drawable;
 import android.location.Location;
 import android.location.LocationListener;
@@ -28,7 +28,9 @@ import android.view.Menu;
 import android.view.MotionEvent;
 import android.view.View;
 import android.widget.Button;
+import android.widget.CheckBox;
 import android.widget.ImageButton;
+import android.widget.LinearLayout;
 import android.widget.Toast;
 
 import com.google.android.maps.GeoPoint;
@@ -36,12 +38,16 @@ import com.google.android.maps.MapActivity;
 import com.google.android.maps.MapController;
 import com.google.android.maps.MyLocationOverlay;
 import com.google.android.maps.Overlay;
-import com.google.android.maps.OverlayItem;
 import com.readystatesoftware.maps.OnSingleTapListener;
 import com.readystatesoftware.maps.TapControlledMapView;
 
 
 public class MapStationActivity extends MapActivity {
+	
+	// User's preferences key
+	String MY_PREFERENCES = "MyPreferences";
+	String GPS_ALERT_DIALOG_KEY =	"gps_alert_dialog_preferences";
+	
 	
 	//action id of button_menu
 	private static final int ID_MY_LOCATION     = 1;
@@ -63,6 +69,8 @@ public class MapStationActivity extends MapActivity {
 	private static int initialLon = (int) (11.8765886 *1E6);
 	// -------------------------------------------------------
 	
+	
+	//private CheckBox checkBoxGpsAlert = null;
 	private ProgressDialog pdToLoadStations = null;
 	
     @Override
@@ -174,31 +182,46 @@ public class MapStationActivity extends MapActivity {
     
     
     
-    private void showGpsAlertDialog(){
-		AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(this);
-		 
-		// set title
-		alertDialogBuilder.setTitle(R.string.alertDialogGpsTitle);
- 
-		// set dialog message
-		alertDialogBuilder
+    private void showGpsAlertDialog(){	
+		final CheckBox checkBoxGpsAlert = new CheckBox(this);
+		checkBoxGpsAlert.setText( R.string.checkBoxGps);
+		LinearLayout linearLayout = new LinearLayout(this);
+		linearLayout.setLayoutParams( new LinearLayout.LayoutParams(LinearLayout.LayoutParams.FILL_PARENT,
+		    LinearLayout.LayoutParams.FILL_PARENT));
+		linearLayout.setOrientation(1);     
+		linearLayout.addView(checkBoxGpsAlert);
+    	AlertDialog.Builder alertDialog = new AlertDialog.Builder(this);
+		alertDialog
+			.setView(linearLayout)
+			.setTitle(R.string.alertDialogGpsTitle)
 			.setMessage(R.string.alertDialogGpsMessage)
-			.setCancelable(false)
-				.setPositiveButton("Si",new DialogInterface.OnClickListener() {
-					public void onClick(DialogInterface dialog,int id) {
-						Intent intent = new Intent(Settings.ACTION_LOCATION_SOURCE_SETTINGS);
-						startActivity(intent);
+			.setPositiveButton("Si",new DialogInterface.OnClickListener() {
+				public void onClick(DialogInterface dialog,int id) {
+					if(checkBoxGpsAlert.isChecked() ){
+						Toast.makeText(getApplicationContext(), "checked", Toast.LENGTH_SHORT).show();
+						SharedPreferences prefs = getSharedPreferences(MY_PREFERENCES, Context.MODE_PRIVATE);
+						SharedPreferences.Editor editor = prefs.edit();
+						editor.putString(GPS_ALERT_DIALOG_KEY, "not show");
+						editor.commit();
 					}
-				})
-				.setNegativeButton("No",new DialogInterface.OnClickListener() {
-					public void onClick(DialogInterface dialog,int id) {
-						dialog.cancel();
+						
+					Intent intent = new Intent(Settings.ACTION_LOCATION_SOURCE_SETTINGS);
+					startActivity(intent);
+				}
+			})
+			.setNegativeButton("No",new DialogInterface.OnClickListener() {
+				public void onClick(DialogInterface dialog,int id) {
+					dialog.cancel();
+					if(checkBoxGpsAlert.isChecked() ){
+						Toast.makeText(getApplicationContext(), "checked", Toast.LENGTH_SHORT).show();
+						SharedPreferences prefs = getSharedPreferences(MY_PREFERENCES, Context.MODE_PRIVATE);
+						SharedPreferences.Editor editor = prefs.edit();
+						editor.putString(GPS_ALERT_DIALOG_KEY, "not show");
+						editor.commit();
 					}
-				});
- 
-			// create alert dialog
-			AlertDialog alertDialog = alertDialogBuilder.create();
-			alertDialog.show();
+				}
+			})
+	       	.show();
     }
     
     
@@ -262,7 +285,7 @@ public class MapStationActivity extends MapActivity {
 				startActivity(newintent);
 			}
 		});
-		// ---------------------------------------------
+		// ---------------------------------------------S
 		
     }
     
@@ -335,7 +358,8 @@ public class MapStationActivity extends MapActivity {
 	 */
 	private class InitialTask extends AsyncTask<Void, Void, Void> {
 		protected void onPreExecute() {
-			pdToLoadStations = ProgressDialog.show(MapStationActivity.this, getString(R.string.loading), getString(R.string.loadingData), true, false);
+			if( !Util.listStationIsLoaded() )
+				pdToLoadStations = ProgressDialog.show(MapStationActivity.this, getString(R.string.loading), getString(R.string.loadingData), true, false);
 
 			// se non si vede il progress dialog, usare qusto:	
 //			MapStationActivity.this.pdToLoadStations = new ProgressDialog(MapStationActivity.this);
@@ -358,8 +382,15 @@ public class MapStationActivity extends MapActivity {
 					MapStationActivity.this.pdToLoadStations.dismiss();
 			} catch (Exception e) {}
 			populateMap();
-			if(! locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER) )
-				showGpsAlertDialog();
+			// check if gps is activated
+			if(! locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER) ){
+				// check if gps alert dialog user's preference is stored 
+				SharedPreferences prefs = getSharedPreferences(MY_PREFERENCES, Context.MODE_PRIVATE);
+				String textData = prefs.getString(GPS_ALERT_DIALOG_KEY, "show");
+				if( textData.equals("show") )
+					showGpsAlertDialog();
+			}
+				
 			
 		}
 	} 
@@ -387,7 +418,7 @@ public class MapStationActivity extends MapActivity {
 			idroStationItemizedOverlay.setSnapToCenter(false);
 			
 			GeoPoint point = new GeoPoint((int) ( station.getCoordinateY()*1E6),(int) (station.getCoordinateX()*1E6));
-			CustomOverlayItem stationOverlayitem = new CustomOverlayItem(point, station );
+			StationOverlayItem stationOverlayitem = new StationOverlayItem(point, station );
 			
 			idroStationItemizedOverlay.addOverlay(stationOverlayitem);
 			mapOverlays.add(idroStationItemizedOverlay);
@@ -401,7 +432,7 @@ public class MapStationActivity extends MapActivity {
 			meteoStationItemizedOverlay.setSnapToCenter(false);
 			
 			GeoPoint point = new GeoPoint((int) ( station.getCoordinateY()*1E6),(int) (station.getCoordinateX()*1E6));
-			CustomOverlayItem stationOverlayitem = new CustomOverlayItem(point, station );
+			StationOverlayItem stationOverlayitem = new StationOverlayItem(point, station );
 			
 			meteoStationItemizedOverlay.addOverlay(stationOverlayitem);
 			mapOverlays.add(meteoStationItemizedOverlay);

@@ -19,5 +19,6 @@
     <string name="alertDialogNetworkTitle">Connessione non disponibile</string>
     <string name="alertDialogNetworkMessage">Connettiti alla rete per visualizzare correttamente i dati</string>
     <string name="btnClose">Chiudi</string>
+    <string name="checkBoxGps">Non richiedermelo in futuro</string>
 
 </resources>
