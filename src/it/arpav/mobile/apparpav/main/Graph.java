@@ -11,18 +11,35 @@ import org.achartengine.renderer.XYSeriesRenderer;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.Color;
+import android.graphics.Paint.Align;
+
+import it.arpav.mobile.apparpav.utils.Global;
 
 public class Graph {
+	Context context= null; 
 
+	private String type = null;		// specifics the type of data: LIVIDRO or PREC
+	private String title = null;	// title of graph
+	private String legend = null;	// legend of graph
+	
+	private String[] time = null;	// time data
+	private float[] value = null;	// value data
+	
+	
+	public Graph(Context context){
+		this.context=context;
+	}
+	
 	public Intent getIntent(Context context){
+		this.context=context;
 		
-		//double[] x = { 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12 };
-		int[] y = { 10, 10, 12, 15, 20, 24, 26, 26, 23, 18, 14, 11 };
 		
-		CategorySeries series = new CategorySeries("Demo Bar Graph");
-		for( int i=0; i < y.length; i++){
-			series.add("Bar " + (i+1), y[i]);
-		}
+		CategorySeries series = new CategorySeries(legend);
+		
+		if( value!=null)
+			for( int i=0; i < value.length; i++){
+				series.add("Bar " + (i+1), value[i]);
+			}
 		
 		XYMultipleSeriesDataset dataset = new XYMultipleSeriesDataset();
 		dataset.addSeries(series.toXYSeries());
@@ -32,7 +49,13 @@ public class Graph {
 		XYSeriesRenderer renderer = new XYSeriesRenderer();
 		renderer.setDisplayChartValues(true);
 		renderer.setChartValuesSpacing((float) 0.5);
-		//renderer.setColor(Color.WHITE);
+		
+		if( type.equals(Global.KEY_LIVIDRO) )
+			renderer.setColor(Color.RED);
+		else
+			renderer.setColor(Color.BLUE);
+
+		
 		renderer.setPointStyle(PointStyle.SQUARE);
 		renderer.setFillPoints(true);
 		
@@ -43,7 +66,8 @@ public class Graph {
 		// customization for the graph
 		XYMultipleSeriesRenderer mRenderer = new XYMultipleSeriesRenderer();
 		mRenderer.addSeriesRenderer(renderer);
-		mRenderer.setChartTitle("Mio Titolo");
+		mRenderer.setChartTitle(title);
+		//mRenderer.setColor(Color.RED);
 		mRenderer.setXTitle("tempo");
 		mRenderer.setYTitle("metri");
 		mRenderer.setZoomEnabled(true);
@@ -63,11 +87,51 @@ public class Graph {
 	    mRenderer.setPointSize(5f);
 
 		
+	    
+	     if(time!=null)
+	    	for (int i = 0; i < time.length; i++) { 
+	    		mRenderer.addXTextLabel(i+1, time[i]);
+	    		//mRenderer.setXLabels(date);
+	    	}
+	    
+	    mRenderer.setXLabelsAlign(Align.CENTER);
+	    mRenderer.setXLabels(0);
+
+	    
+	    
 		//Intent intent = ChartFactory.getBarChartIntent( context, dataset, mRenderer, Type.DEFAULT);
 		Intent intent = ChartFactory.getLineChartIntent( context, dataset, mRenderer);
 		
 		return intent;
 		
 	}
+	
+	/**
+	 * set the value for the graph
+	 */
+	public void setValue( float[] value){
+		this.value=value;
+	}
+	
+	/**
+	 * set the time for each values
+	 */
+	public void setTime(String[] time){
+		this.time=time;
+	}
+
+	public void setTitle(String title){
+		this.title=title;
+		
+	}
+
+	public void setType(String type){
+		this.type=type;
+		if(type.equals( Global.KEY_LIVIDRO) )
+			legend=context.getString(R.string.lividroLegend);
+		else
+			legend=context.getString(R.string.precLegend);
+	}
+	
 	
 }

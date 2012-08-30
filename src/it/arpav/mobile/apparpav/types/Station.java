@@ -6,16 +6,18 @@ package it.arpav.mobile.apparpav.types;
  */
 
 public class Station {
-	private String id			= "";
-	private String name 		= "";
-	private String reservoir 	= "";
-	private String coordinateX 	= "";
-	private String coordinateY 	= "";
-	private String quota	 	= "";
-	private String link 		= "";
-	private String type			= "";
+	private String id			= "";	// id of station
+	private String name 		= "";	// name of station
+	private String reservoir 	= "";	// reservoir of station
+	private String coordinateX 	= "";	// geo Xcoordinates 
+	private String coordinateY 	= "";	// geo Ycoordinates
+	private String quota	 	= "";	// quota of station
+	private String link 		= "";	// link to download station data
+	private String type			= "";	// station type: IDRO or METEO
 
+	private Data data= null;
 
+	
 	public void setId( String id){
 		this.id = id;
 	}
@@ -88,4 +90,13 @@ public class Station {
 		return type;
 	}
 
+	
+	public void setData( Data data){
+		this.data = data;
+	}
+	
+	public Data getData(){
+		return data;
+	}
+	
 }

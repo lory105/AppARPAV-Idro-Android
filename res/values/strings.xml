@@ -20,5 +20,9 @@
     <string name="alertDialogNetworkMessage">Connettiti alla rete per visualizzare correttamente i dati</string>
     <string name="btnClose">Chiudi</string>
     <string name="checkBoxGps">Non richiedermelo in futuro</string>
+    <string name="lividroLegend">Livello idrometrico</string>
+    <string name="precLegend">Livello pluviometrico</string>
+    <string name="notOnlineNote">Problemi di connessione: verifica di essere connesso alla rete</string>
+    <string name="interruptedException">Interruzione dell\'esecuzione: possibili problemi di connessione</string>
 
 </resources>

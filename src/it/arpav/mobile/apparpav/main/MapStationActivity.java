@@ -92,7 +92,8 @@ public class MapStationActivity extends MapActivity {
 		mapView.setOnSingleTapListener(new OnSingleTapListener() {		
 			@Override
 			public boolean onSingleTap(MotionEvent e) {
-				idroStationItemizedOverlay.hideAllBalloons();
+				if(idroStationItemizedOverlay != null)
+					idroStationItemizedOverlay.hideAllBalloons();
 				return true;
 			}
 		});
@@ -115,17 +116,21 @@ public class MapStationActivity extends MapActivity {
 		myLocationOverlay = new MyLocationOverlay(this, mapView);
 		mapView.getOverlays().add(myLocationOverlay);
 		
+		mapOverlays = mapView.getOverlays();
+		
 		updateDisplay();
 		
 		if( Util.isOnline(this)){
 			new InitialTask().execute();
 		}
 		else{
+			if( Util.listStationIsLoaded() )
+				populateMap();
 			showNetworkAlertDialog();
 		}
 		
         Log.d("666", "111");
-		mapOverlays = mapView.getOverlays();
+		
 		
 //		Drawable drawable = this.getResources().getDrawable(R.drawable.red16);
 //		idroStationItemizedOverlay = new StationItemizedOverlay(drawable, mapView);
@@ -309,6 +314,11 @@ public class MapStationActivity extends MapActivity {
     }
     
     
+//    static public void loadStationData( Context context, Station station){
+//    	
+//    }
+    
+    
 	public class GeoUpdateHandler implements LocationListener {
 
 		@Override
@@ -390,10 +400,14 @@ public class MapStationActivity extends MapActivity {
 				if( textData.equals("show") )
 					showGpsAlertDialog();
 			}
-				
-			
 		}
+		
 	} 
+	
+	
+
+	
+	
 	
 	
 	protected void populateMap(){
@@ -437,6 +451,8 @@ public class MapStationActivity extends MapActivity {
 			meteoStationItemizedOverlay.addOverlay(stationOverlayitem);
 			mapOverlays.add(meteoStationItemizedOverlay);
 		}
+		
+		mapView.invalidate();
 		
 	}
 

@@ -1,16 +1,23 @@
 package it.arpav.mobile.apparpav.utils;
 
 import it.arpav.mobile.apparpav.exceptions.XmlNullExc;
+import it.arpav.mobile.apparpav.main.MapStationActivity;
 import it.arpav.mobile.apparpav.types.Station;
 
 import java.util.ArrayList;
 import java.util.List;
 
+import net.londatiga.android.R;
+
 import org.w3c.dom.Document;
 
+import android.app.ProgressDialog;
 import android.content.Context;
+import android.content.SharedPreferences;
+import android.location.LocationManager;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
+import android.os.AsyncTask;
 import android.util.Log;
 
 /**
@@ -44,15 +51,13 @@ public class Util {
 	 * Load the list of Stations from xml in the url
 	*/
 	public static void loadListStations(Context context) throws XmlNullExc{
-		if(listStations == null ){
 		
 			XMLParser xmlParser = new XMLParser();
 			String xml = xmlParser.getXmlFromUrl( KEY_INDEX_STATIONS_URL );
-			Document doc = xmlParser.getDomElementFromString(context, xml);
+			Document doc = xmlParser.getDomElementFromString(xml);
 			// doc way be null if getDomElement return null
 			
 			listStations = xmlParser.parseXmlIndexStations(doc);
-		}
 	}
 	
 	public static List<ArrayList<Station>> getListStations(Context context) throws XmlNullExc {
@@ -69,5 +74,33 @@ public class Util {
 		if(listStations == null ) return false;
 		return true;
 	}
+	
+	
+	
+	public static void loadStationData(Station station) throws XmlNullExc{
+		
+		XMLParser xmlParser = new XMLParser();
+		String xml = xmlParser.getXmlFromUrl( station.getLink() );
+		Document doc = xmlParser.getDomElementFromString(xml);
+		Log.d("PROVA", "no1");
+		// doc way be null if getDomElement return null
+		
+		station.setData(xmlParser.parseXmlStationData(doc));
+		Log.d("PROVA", "no2");
+		//station.setData( xmlParser.parseXmlIndexStations(doc) );
+	}
+	
+	
+//	public static void getStationData(Station station){
+//		new DownloadStationDataTask().execute(station);
+//	}
+	
+
+	
+	
+	
+	
+	
+	
 	
 }

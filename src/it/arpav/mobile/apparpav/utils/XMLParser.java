@@ -1,6 +1,7 @@
 package it.arpav.mobile.apparpav.utils;
 
 import it.arpav.mobile.apparpav.exceptions.XmlNullExc;
+import it.arpav.mobile.apparpav.types.Data;
 import it.arpav.mobile.apparpav.types.Station;
 
 import java.io.IOException;
@@ -27,7 +28,6 @@ import org.w3c.dom.NodeList;
 import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
 
-import android.content.Context;
 import android.util.Log;
 
 /**
@@ -36,6 +36,7 @@ import android.util.Log;
  */
 
 public class XMLParser {
+	// key for the station's index xml 
 	static final String KEY_STATION = 		"STAZIONE";
 	static final String KEY_ID =			"ID";
 	static final String KEY_NAME = 			"NOME";
@@ -45,6 +46,15 @@ public class XMLParser {
 	static final String KEY_QUOTA = 		"QUOTA";
 	static final String KEY_LINK = 			"LINK";
 	static final String KEY_TYPE = 			"TIPOSTAZ";
+	
+	
+	// key for a specific xml of a station
+	static final String KEY_SENSOR = 		"SENSORE";
+	static final String KEY_TYPE_SENSOR = 		"TIPO";
+	static final String KEY_LIVIDRO = 		"LIVIDRO";
+	static final String KEY_PREC = 			"PREC";
+	static final String KEY_VALUE = 		"VALORE";
+	static final String KEY_INSTANT = 		"istante";
 	
 	
 	/**
@@ -77,7 +87,7 @@ public class XMLParser {
 	/**
 	 * Parsing XML content from string and getting DOM element 
 	*/
-	public Document getDomElementFromString(Context context, String xml) throws XmlNullExc {
+	public Document getDomElementFromString( String xml) throws XmlNullExc {
 		if(xml == null ) throw new XmlNullExc(); 
 		
 	    Document doc = null;
@@ -163,7 +173,7 @@ public class XMLParser {
 			station.setType( getValue(elementStation, KEY_TYPE) );
             
 			Log.d("name", station.getName());
-			if( station.getType().equals("IDRO"))
+			if( station.getType().equals( Global.KEY_IDRO))
 				idroStationList.add(station);
 			else
 				meteoStationList.add(station);
@@ -174,6 +184,89 @@ public class XMLParser {
 		return listStations;
 		
 	}
+	
+	
+	
+	/**
+	 * Parses the main xml containing the index of stations and some of their basic information
+	*/
+	public Data parseXmlStationData(Document doc){
+		String type = null;
+		String[]date = null;
+		String[] time = null;
+		float[] value = null;
+		
+		
+		NodeList nodesSensor=doc.getElementsByTagName( KEY_SENSOR );
+		
+		
+		for(int i=0;i<nodesSensor.getLength();i++){
+			Element elementSensor = (Element) nodesSensor.item(i);
+			
+		    type = getValue(elementSensor, KEY_TYPE_SENSOR );
+			
+			if( type.equals(Global.KEY_LIVIDRO) || type.equals(Global.KEY_PREC) ){
+				
+				NodeList nodesValue = elementSensor.getElementsByTagName(KEY_VALUE);
+				
+				int size = nodesValue.getLength();
+				date = new String[size];
+				time = new String[size];
+				value = new float[size];
+				
+				for(int x=0;x<nodesValue.getLength();x++){
+					Element elementValue = (Element) nodesValue.item(x);
+					value[x]= Float.parseFloat( elementValue.getTextContent());
+					String instantValue = elementValue.getAttribute(KEY_INSTANT);
+					String dateValue = instantValue.substring(0, 8);
+					String timeValue = instantValue.substring(8, 12);
+					
+					date[x]= dateValue = new StringBuffer(dateValue).insert(4, "/").insert(7,"/").toString();
+					time[x]= timeValue = new StringBuffer(timeValue).insert(2, ":").toString();
+					
+//					elementValue.getTextContent();
+					Log.d("data", dateValue );
+					Log.d("time", timeValue );
+				}
+					
+		
+
+				
+				// TODO inserire break x uscire dal ciclo se è entrato una volta nell if
+			}
+		
+		}
+		
+		
+		// -----------------------------
+//		NodeList nodesValue=doc.getElementsByTagName( KEY_VALUE );
+//		for(int i=0;i<nodesValue.getLength();i++){
+//			Element elementValue = (Element) nodesValue.item(i);
+//			elementValue.getTextContent();
+//			//elementValue.getAttribute("istante");
+//			Log.d("PROVA", elementValue.getAttribute("istante") );
+//			Log.d("PROVA", elementValue.getTextContent() );
+//			Log.d("PROVA", "si2");
+		//-------------------------------------
+			
+//		    value.
+//		    
+//			.setId( getValue(elementStation, KEY_ID) );
+//		    station.setName( getCharacterDataFromElement(elementName) );
+//			station.setReservoir( getCharacterDataFromElement(elementReservoir) );
+//			station.setCoordinateX( getValue(elementStation, KEY_COORDINATE_X ) );
+//			station.setCoordinateY( getValue(elementStation, KEY_COORDINATE_Y) );
+//			station.setLink( getValue(elementStation, KEY_LINK) );
+//			station.setType( getValue(elementStation, KEY_TYPE) );
+		
+
+		return new Data( type, date, time, value);
+		
+	}
+	
+	
+	
+	
 	
 	/**
 	 * Method used to read the tags "NOME" and "BACINO" that contain CDATA values
