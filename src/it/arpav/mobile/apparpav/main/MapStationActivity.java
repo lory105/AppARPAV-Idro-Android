@@ -6,6 +6,9 @@ import it.arpav.mobile.apparpav.utils.Util;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.TimeoutException;
 
 import net.londatiga.android.ActionItem;
 import net.londatiga.android.QuickAction;
@@ -36,6 +39,7 @@ import android.widget.Toast;
 import com.google.android.maps.GeoPoint;
 import com.google.android.maps.MapActivity;
 import com.google.android.maps.MapController;
+import com.google.android.maps.MapView;
 import com.google.android.maps.MyLocationOverlay;
 import com.google.android.maps.Overlay;
 import com.readystatesoftware.maps.OnSingleTapListener;
@@ -78,12 +82,10 @@ public class MapStationActivity extends MapActivity {
         super.onCreate(savedInstanceState);
         
         setContentView(R.layout.activity_map_sensor);
-        
-        Log.d("111", "111");
+        updateDisplay();
         
 		// Configure the Map
 		mapView = (TapControlledMapView) findViewById(R.id.mapview);
-		Log.d("222", "111");
 		mapView.setBuiltInZoomControls(true);
 		mapView.setSatellite(false);
 		mapController = mapView.getController();
@@ -110,18 +112,47 @@ public class MapStationActivity extends MapActivity {
 		// -------------------------------------------------------
 
 		
-		locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 20000,
-				50, new GeoUpdateHandler());
+		locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 0,
+				0, new GeoUpdateHandler());
         Log.d("555", "111");
 		myLocationOverlay = new MyLocationOverlay(this, mapView);
-		mapView.getOverlays().add(myLocationOverlay);
 		
 		mapOverlays = mapView.getOverlays();
 		
-		updateDisplay();
+		mapOverlays.add(myLocationOverlay);
+
+		//---------------------
+//		myLocationOverlay.runOnFirstFix(new Runnable() {
+//			public void run() {
+//				mapView.getController().animateTo(
+//					myLocationOverlay.getMyLocation());
+//			}
+//		});
+		//---------------------
 		
+		
+
+        
 		if( Util.isOnline(this)){
-			new InitialTask().execute();
+			DownloadStationIndexTask ds = new DownloadStationIndexTask();
+			ds.execute();
+			try{
+				ds.get(30000, TimeUnit.MILLISECONDS);
+			} 
+			catch( TimeoutException e){
+				if (pdToLoadStations != null)
+					pdToLoadStations.dismiss();
+				ds.cancel(true);
+				Toast.makeText(this, getString(R.string.interruptedException), Toast.LENGTH_SHORT).show();
+			} 
+			catch( InterruptedException e){
+				Toast.makeText(this, getString(R.string.interruptedException), Toast.LENGTH_SHORT).show();
+			} catch( ExecutionException e){
+				if (pdToLoadStations != null)
+					pdToLoadStations.dismiss();
+				ds.cancel(true);
+				Toast.makeText(this, getString(R.string.interruptedException), Toast.LENGTH_SHORT).show();
+			}
 		}
 		else{
 			if( Util.listStationIsLoaded() )
@@ -129,26 +160,6 @@ public class MapStationActivity extends MapActivity {
 			showNetworkAlertDialog();
 		}
 		
-        Log.d("666", "111");
-		
-		
-//		Drawable drawable = this.getResources().getDrawable(R.drawable.red16);
-//		idroStationItemizedOverlay = new StationItemizedOverlay(drawable, mapView);
-//        Log.d("666", "222");
-//		// set iOS behavior attributes for overlay
-//		idroStationItemizedOverlay.setShowClose(false);
-//		Log.d("777", "111");
-//		idroStationItemizedOverlay.setShowDisclosure(true);
-//		idroStationItemizedOverlay.setSnapToCenter(false);
-//		
-//		
-//		GeoPoint point2 = new GeoPoint((int) (45.7945683 *1E6),(int) (11.8165886 *1E6));
-//		
-//		OverlayItem overlayitem = new OverlayItem(point2, "Hola, Mundo!", "I'm in Mexico City!");
-//		
-//		idroStationItemizedOverlay.addOverlay(overlayitem);
-//		mapOverlays.add(idroStationItemizedOverlay);
-//        Log.d("888", "111");
     }
 
     @Override
@@ -203,7 +214,6 @@ public class MapStationActivity extends MapActivity {
 			.setPositiveButton("Si",new DialogInterface.OnClickListener() {
 				public void onClick(DialogInterface dialog,int id) {
 					if(checkBoxGpsAlert.isChecked() ){
-						Toast.makeText(getApplicationContext(), "checked", Toast.LENGTH_SHORT).show();
 						SharedPreferences prefs = getSharedPreferences(MY_PREFERENCES, Context.MODE_PRIVATE);
 						SharedPreferences.Editor editor = prefs.edit();
 						editor.putString(GPS_ALERT_DIALOG_KEY, "not show");
@@ -218,7 +228,6 @@ public class MapStationActivity extends MapActivity {
 				public void onClick(DialogInterface dialog,int id) {
 					dialog.cancel();
 					if(checkBoxGpsAlert.isChecked() ){
-						Toast.makeText(getApplicationContext(), "checked", Toast.LENGTH_SHORT).show();
 						SharedPreferences prefs = getSharedPreferences(MY_PREFERENCES, Context.MODE_PRIVATE);
 						SharedPreferences.Editor editor = prefs.edit();
 						editor.putString(GPS_ALERT_DIALOG_KEY, "not show");
@@ -308,8 +317,7 @@ public class MapStationActivity extends MapActivity {
 		try{
 			Util.getListStations(this);
 		} catch( XmlNullExc e ){
-			// TODO
-			Toast.makeText(getApplicationContext(), "XmlNullExc - loadStatios() Map Activity ", Toast.LENGTH_SHORT).show();
+			Toast.makeText(getApplicationContext(), R.string.xmlNullExceptionNote, Toast.LENGTH_SHORT).show();
 		}
     }
     
@@ -332,22 +340,20 @@ public class MapStationActivity extends MapActivity {
 		}
 
 		@Override
-		public void onProviderDisabled(String provider) {
-		}
+		public void onProviderDisabled(String provider) {}
 
 		@Override
-		public void onProviderEnabled(String provider) {
-		}
+		public void onProviderEnabled(String provider) {}
 
 		@Override
-		public void onStatusChanged(String provider, int status, Bundle extras) {
-		}
+		public void onStatusChanged(String provider, int status, Bundle extras) {}
 	}
     
 	
 	@Override
 	protected void onResume() {
 		super.onResume();
+		Toast.makeText(getApplicationContext(), "onResume", Toast.LENGTH_SHORT).show();
 		myLocationOverlay.enableMyLocation();
 		myLocationOverlay.enableCompass();
 	}
@@ -355,6 +361,7 @@ public class MapStationActivity extends MapActivity {
 	@Override
 	protected void onPause() {
 		super.onResume();
+		Toast.makeText(getApplicationContext(), "onPause", Toast.LENGTH_SHORT).show();
 		myLocationOverlay.disableMyLocation();
 		myLocationOverlay.disableCompass();
 	}
@@ -366,7 +373,7 @@ public class MapStationActivity extends MapActivity {
 	/**
 	 * ?????????? 
 	 */
-	private class InitialTask extends AsyncTask<Void, Void, Void> {
+	private class DownloadStationIndexTask extends AsyncTask<Void, Void, Void> {
 		protected void onPreExecute() {
 			if( !Util.listStationIsLoaded() )
 				pdToLoadStations = ProgressDialog.show(MapStationActivity.this, getString(R.string.loading), getString(R.string.loadingData), true, false);
@@ -453,7 +460,6 @@ public class MapStationActivity extends MapActivity {
 		}
 		
 		mapView.invalidate();
-		
 	}
 
 
