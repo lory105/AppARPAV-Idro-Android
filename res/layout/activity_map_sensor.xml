@@ -114,11 +114,49 @@
     
     </LinearLayout>
 
-
     <LinearLayout
         xmlns:android="http://schemas.android.com/apk/res/android"
         android:layout_width="fill_parent"
-        android:layout_height="40dp"
+        android:layout_height="26dp"
+        android:background="#C0C0C0"
+        android:gravity="center"
+        android:orientation="horizontal" >
+
+        <ImageView
+            android:id="@+id/idroImage"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:src="@drawable/red16" />
+
+        <TextView
+            android:id="@+id/idroText"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/idroStation"
+            android:textSize="14dp"
+            android:textAppearance="?android:attr/textAppearanceMedium" />
+
+        <ImageView
+            android:id="@+id/pluvioImage"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="10dp"
+            android:src="@drawable/blue16" />
+
+        <TextView
+            android:id="@+id/pluvioText"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/pluvioStation"
+            android:textSize="14dp"
+            android:textAppearance="?android:attr/textAppearanceMedium" />
+    
+    </LinearLayout>
+            
+    <LinearLayout
+        xmlns:android="http://schemas.android.com/apk/res/android"
+        android:layout_width="fill_parent"
+        android:layout_height="26dp"
         android:background="#C0C0C0"
         android:gravity="center"
         android:orientation="horizontal" >

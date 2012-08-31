@@ -172,7 +172,6 @@ public class XMLParser {
 			station.setLink( getValue(elementStation, KEY_LINK) );
 			station.setType( getValue(elementStation, KEY_TYPE) );
             
-			Log.d("name", station.getName());
 			if( station.getType().equals( Global.KEY_IDRO))
 				idroStationList.add(station);
 			else
@@ -217,6 +216,7 @@ public class XMLParser {
 				for(int x=0;x<nodesValue.getLength();x++){
 					Element elementValue = (Element) nodesValue.item(x);
 					value[x]= Float.parseFloat( elementValue.getTextContent());
+					
 					String instantValue = elementValue.getAttribute(KEY_INSTANT);
 					String dateValue = instantValue.substring(0, 8);
 					String timeValue = instantValue.substring(8, 12);
@@ -224,44 +224,14 @@ public class XMLParser {
 					date[x]= dateValue = new StringBuffer(dateValue).insert(4, "/").insert(7,"/").toString();
 					time[x]= timeValue = new StringBuffer(timeValue).insert(2, ":").toString();
 					
-//					elementValue.getTextContent();
-					Log.d("data", dateValue );
-					Log.d("time", timeValue );
 				}
-					
-		
 
-				
-				// TODO inserire break x uscire dal ciclo se è entrato una volta nell if
+				break;
 			}
 		
 		}
 		
-		
-		// -----------------------------
-//		NodeList nodesValue=doc.getElementsByTagName( KEY_VALUE );
-//		for(int i=0;i<nodesValue.getLength();i++){
-//			Element elementValue = (Element) nodesValue.item(i);
-//			elementValue.getTextContent();
-//			//elementValue.getAttribute("istante");
-//			Log.d("PROVA", elementValue.getAttribute("istante") );
-//			Log.d("PROVA", elementValue.getTextContent() );
-//			Log.d("PROVA", "si2");
-		//-------------------------------------
-			
-//		    value.
-//		    
-//			.setId( getValue(elementStation, KEY_ID) );
-//		    station.setName( getCharacterDataFromElement(elementName) );
-//			station.setReservoir( getCharacterDataFromElement(elementReservoir) );
-//			station.setCoordinateX( getValue(elementStation, KEY_COORDINATE_X ) );
-//			station.setCoordinateY( getValue(elementStation, KEY_COORDINATE_Y) );
-//			station.setLink( getValue(elementStation, KEY_LINK) );
-//			station.setType( getValue(elementStation, KEY_TYPE) );
-		
-
 		return new Data( type, date, time, value);
-		
 	}
 	
 	
@@ -278,8 +248,6 @@ public class XMLParser {
 		    return cd.getData();
 		  }
 		  return "";
-		}
-
-	
+		}	
 	
 }

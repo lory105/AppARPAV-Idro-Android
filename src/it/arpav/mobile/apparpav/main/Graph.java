@@ -60,15 +60,11 @@ public class Graph {
 		renderer.setFillPoints(true);
 		
 
-		
-		
-		
 		// customization for the graph
 		XYMultipleSeriesRenderer mRenderer = new XYMultipleSeriesRenderer();
 		mRenderer.addSeriesRenderer(renderer);
 		mRenderer.setChartTitle(title);
-		//mRenderer.setColor(Color.RED);
-		mRenderer.setXTitle("tempo");
+		mRenderer.setXTitle("orario");
 		mRenderer.setYTitle("metri");
 		mRenderer.setZoomEnabled(true);
 		mRenderer.setZoomButtonsVisible(true);
@@ -81,29 +77,23 @@ public class Graph {
 		mRenderer.setShowGrid(true);
 
 	    mRenderer.setAxisTitleTextSize(14);
-	    mRenderer.setChartTitleTextSize(14);
+	    mRenderer.setChartTitleTextSize(17);
 	    mRenderer.setLabelsTextSize(10);
 	    mRenderer.setLegendTextSize(14);
 	    mRenderer.setPointSize(5f);
 
-		
-	    
+
 	     if(time!=null)
 	    	for (int i = 0; i < time.length; i++) { 
 	    		mRenderer.addXTextLabel(i+1, time[i]);
-	    		//mRenderer.setXLabels(date);
 	    	}
 	    
 	    mRenderer.setXLabelsAlign(Align.CENTER);
 	    mRenderer.setXLabels(0);
 
-	    
-	    
-		//Intent intent = ChartFactory.getBarChartIntent( context, dataset, mRenderer, Type.DEFAULT);
 		Intent intent = ChartFactory.getLineChartIntent( context, dataset, mRenderer);
 		
-		return intent;
-		
+		return intent;		
 	}
 	
 	/**

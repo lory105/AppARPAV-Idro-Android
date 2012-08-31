@@ -59,15 +59,20 @@ public class StationItemizedOverlay extends BalloonItemizedOverlay<StationOverla
 				DownloadStationDataTask dt = new DownloadStationDataTask();
 				dt.execute(station);
 				try{
-					dt.get(100, TimeUnit.MILLISECONDS);
-//					dt.get();
+					dt.get(30000, TimeUnit.MILLISECONDS);
 				} 
 				catch( TimeoutException e){
+					if (pdToLoadStationData != null)
+						pdToLoadStationData.dismiss();
+					dt.cancel(true);
 					Toast.makeText(context, context.getString(R.string.interruptedException), Toast.LENGTH_SHORT).show();
 				} 
 				catch( InterruptedException e){
 					Toast.makeText(context, context.getString(R.string.interruptedException), Toast.LENGTH_SHORT).show();
 				} catch( ExecutionException e){
+					if (pdToLoadStationData != null)
+						pdToLoadStationData.dismiss();
+					dt.cancel(true);
 					Toast.makeText(context, context.getString(R.string.interruptedException), Toast.LENGTH_SHORT).show();
 				}
 				
@@ -77,9 +82,6 @@ public class StationItemizedOverlay extends BalloonItemizedOverlay<StationOverla
 		}
 		else
 			startGraphActivity(station);
-		
-		
-		// TODO: start chart or get sul asynch task per attendere un tempo massimo
 		
 		return true;
 	}
@@ -115,7 +117,7 @@ public class StationItemizedOverlay extends BalloonItemizedOverlay<StationOverla
 				
 					Util.loadStationData(station[0]);
 			} catch (XmlNullExc e){ 
-				// TODO
+				Toast.makeText(context, R.string.xmlNullExceptionNote, Toast.LENGTH_SHORT).show();
 			}
 			
 			return station[0];
@@ -131,9 +133,6 @@ public class StationItemizedOverlay extends BalloonItemizedOverlay<StationOverla
  			startGraphActivity(station);
 		}
 				
-			
-
-
 
 	} 
 

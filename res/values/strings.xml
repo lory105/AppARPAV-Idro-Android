@@ -11,7 +11,7 @@
     <color name="black">#000000</color>
 
     <string name="title_activity_all_sensor">AllSensorActivity</string>
-    <string name="titleMap">Mappa Idrometrica</string>
+    <string name="titleMap">Mappa stazioni</string>
     <string name="alertDialogGpsTitle">Segnale GPS disattivato</string>
     <string name="alertDialogGpsMessage">Attivare il Gps per rilevare la propria posizione nella mappa?</string>
     <string name="loading">Caricamento..</string>
@@ -24,5 +24,8 @@
     <string name="precLegend">Livello pluviometrico</string>
     <string name="notOnlineNote">Problemi di connessione: verifica di essere connesso alla rete</string>
     <string name="interruptedException">Interruzione dell\'esecuzione: possibili problemi di connessione</string>
+    <string name="xmlNullExceptionNote">Errore nella lettura dei tadi..</string>
+    <string name="idroStation">Staz. idrometriche</string>
+    <string name="pluvioStation">Staz. pluviometriche</string>
 
 </resources>
