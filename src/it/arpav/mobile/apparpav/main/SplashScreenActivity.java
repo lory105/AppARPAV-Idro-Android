@@ -37,7 +37,8 @@ public class SplashScreenActivity extends Activity {
 	                i.setClass(sPlashScreen, MapStationActivity.class);
 	        		startActivity(i);
 	                
-	                stop();
+	        		// provo a decommentarlo
+	                //stop();
 	            }
 	        }
 	    };

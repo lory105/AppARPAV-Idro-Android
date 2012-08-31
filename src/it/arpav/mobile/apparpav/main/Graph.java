@@ -82,7 +82,14 @@ public class Graph {
 	    mRenderer.setLegendTextSize(14);
 	    mRenderer.setPointSize(5f);
 
-
+	    // -----------------------
+	    // prove sistemazione grafico
+		//mRenderer.initAxesRange( 2);
+		//mRenderer.setXAxisMin(0);
+		mRenderer.setXAxisMax(17);
+	    // -----------------------
+	    
+	    
 	     if(time!=null)
 	    	for (int i = 0; i < time.length; i++) { 
 	    		mRenderer.addXTextLabel(i+1, time[i]);
