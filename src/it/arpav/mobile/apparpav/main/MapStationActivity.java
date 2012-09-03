@@ -3,6 +3,7 @@ package it.arpav.mobile.apparpav.main;
 import it.arpav.mobile.apparpav.exceptions.XmlNullExc;
 import it.arpav.mobile.apparpav.types.Station;
 import it.arpav.mobile.apparpav.utils.Util;
+import it.arpav.mobile.apparpav.main.menu.*;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -10,9 +11,6 @@ import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 
-import net.londatiga.android.ActionItem;
-import net.londatiga.android.QuickAction;
-import net.londatiga.android.R;
 import android.app.AlertDialog;
 import android.app.ProgressDialog;
 import android.content.Context;
@@ -57,6 +55,8 @@ public class MapStationActivity extends MapActivity {
 	private static final int ID_MY_LOCATION     = 1;
 	private static final int ID_NEAREST_STATION = 2;
 	private static final int ID_ACTIVE_GPS 		= 3;
+	private static final int ID_ONLY_IDRO 		= 4;
+	private static final int ID_ONLY_PLUVIO 	= 5;
 
 	// -------------------------------------------------------
 	private List<Overlay> mapOverlays;
@@ -94,8 +94,10 @@ public class MapStationActivity extends MapActivity {
 		mapView.setOnSingleTapListener(new OnSingleTapListener() {		
 			@Override
 			public boolean onSingleTap(MotionEvent e) {
-				if(idroStationItemizedOverlay != null)
+				if(idroStationItemizedOverlay != null){
 					idroStationItemizedOverlay.hideAllBalloons();
+				 	meteoStationItemizedOverlay.hideAllBalloons();
+				}
 				return true;
 			}
 		});
@@ -242,36 +244,78 @@ public class MapStationActivity extends MapActivity {
     public void updateDisplay(){
 		// ---------------------------------------------
     	// create menu option
-		ActionItem myLocationItem 	= new ActionItem(ID_MY_LOCATION, "Mia posizione", getResources().getDrawable(R.drawable.location));
-		ActionItem nearestItem   	= new ActionItem(ID_NEAREST_STATION, "Stazione piu vicina", getResources().getDrawable(R.drawable.location));
-        ActionItem activeGpsItem 	= new ActionItem(ID_ACTIVE_GPS, "Attiva GPS", getResources().getDrawable(R.drawable.gps));
-    	
-//		ActionItem myLocationItem 	= new ActionItem(ID_MY_LOCATION, "Next");
-//		ActionItem nearestItem   	= new ActionItem(ID_NEAREST_STATION, "Prev");
-//        ActionItem activeGpsItem 	= new ActionItem(ID_ACTIVE_GPS, "Find");
-    	
-        final QuickAction mQuickAction 	= new QuickAction(this );
-        //final QuickAction mQuickAction 	= new QuickAction(this, QuickAction.VERTICAL );
+		ActionItem myLocationItem 		 = new ActionItem(ID_MY_LOCATION, "Mia posizione", getResources().getDrawable(R.drawable.location));
+		ActionItem nearestStationItem    = new ActionItem(ID_NEAREST_STATION, "Stazione piu vicina", getResources().getDrawable(R.drawable.location));
+        ActionItem activeGpsItem 		 = new ActionItem(ID_ACTIVE_GPS, "Attiva GPS", getResources().getDrawable(R.drawable.gps));
+        ActionItem onlyIdroStationItem 	 = new ActionItem(ID_ONLY_IDRO, "Staz. idormetriche", getResources().getDrawable(R.drawable.red48));
+        ActionItem onlyPluvioStationItem = new ActionItem(ID_ONLY_PLUVIO, "Staz. pluviometriche", getResources().getDrawable(R.drawable.blue48));
+        
+        //use setSticky(true) to disable QuickAction dialog being dismissed after an item is clicked
+        myLocationItem.setSticky(true);
+        nearestStationItem.setSticky(true);
+        activeGpsItem.setSticky(true);
+        onlyIdroStationItem.setSticky(true);
+        onlyPluvioStationItem.setSticky(true);
+        
+        final QuickAction mQuickAction 	= new QuickAction(this, QuickAction.VERTICAL );
         
 		mQuickAction.addActionItem(myLocationItem);
-		mQuickAction.addActionItem(nearestItem);
+		mQuickAction.addActionItem(nearestStationItem);
 		mQuickAction.addActionItem(activeGpsItem);
+		mQuickAction.addActionItem(onlyIdroStationItem);
+		mQuickAction.addActionItem(onlyPluvioStationItem);
 		
 		//setup the action item click listener
 		mQuickAction.setOnActionItemClickListener(new QuickAction.OnActionItemClickListener() {
 			@Override
 			public void onItemClick(QuickAction quickAction, int pos, int actionId) {
 				
-				if (actionId == ID_MY_LOCATION) {
-					//Intent newintent = new Intent( getApplicationContext(), ConfActivity.class);
-					//newintent.putExtra("reload", true);
-					//startActivity(newintent);
-				} else if (actionId == ID_NEAREST_STATION ) {
-					Toast.makeText(getApplicationContext(), "I have no info this time", Toast.LENGTH_SHORT).show();
-				} else {
-					Intent intent = new Intent(Settings.ACTION_LOCATION_SOURCE_SETTINGS);
-					startActivity(intent);
+				switch (actionId){
+					case ID_MY_LOCATION:
+						Toast.makeText(getApplicationContext(), "I have no info this time", Toast.LENGTH_SHORT).show();
+						break;
+					case ID_NEAREST_STATION:
+						Toast.makeText(getApplicationContext(), "I have no info this time", Toast.LENGTH_SHORT).show();
+						break;
+					case ID_ACTIVE_GPS:
+						Intent intent = new Intent(Settings.ACTION_LOCATION_SOURCE_SETTINGS);
+						startActivity(intent);
+						break;
+					case ID_ONLY_IDRO:
+						Toast.makeText(getApplicationContext(), "hhI", Toast.LENGTH_SHORT).show();
+						// example hiding balloon before removing overlay
+						if (idroStationItemizedOverlay.getFocus() != null) {
+							idroStationItemizedOverlay.hideBalloon();
+						}
+						if (meteoStationItemizedOverlay.getFocus() != null) {
+							meteoStationItemizedOverlay.hideAllBalloons();
+						}
+
+//						mapOverlays.remove(meteoStationItemizedOverlay);
+//						mapOverlays.remove(idroStationItemizedOverlay);
+						mapView.getOverlays().clear();
+						mapOverlays.add(idroStationItemizedOverlay);
+						mapView.invalidate();
+						break;
+						
+					case ID_ONLY_PLUVIO:
+						Toast.makeText(getApplicationContext(), "hhI", Toast.LENGTH_SHORT).show();
+						// example hiding balloon before removing overlay
+						if (idroStationItemizedOverlay.getFocus() != null) {
+							idroStationItemizedOverlay.hideBalloon();
+						}
+						if (meteoStationItemizedOverlay.getFocus() != null) {
+							meteoStationItemizedOverlay.hideAllBalloons();
+						}
+
+						//mapOverlays.remove(idroStationItemizedOverlay);
+						//mapView.getOverlays().remove(idroStationItemizedOverlay);
+						mapView.getOverlays().clear();
+						mapOverlays.add(meteoStationItemizedOverlay);
+						mapView.invalidate();
+						break;
 				}
+				
 			}
 		});
 		
@@ -459,7 +503,7 @@ public class MapStationActivity extends MapActivity {
 			meteoStationItemizedOverlay.addOverlay(stationOverlayitem);
 			mapOverlays.add(meteoStationItemizedOverlay);
 		}
-		
+		//mapOverlays.remove(meteoStationItemizedOverlay);
 		mapView.invalidate();
 	}
 

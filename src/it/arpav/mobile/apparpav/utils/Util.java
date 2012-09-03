@@ -7,8 +7,6 @@ import it.arpav.mobile.apparpav.types.Station;
 import java.util.ArrayList;
 import java.util.List;
 
-import net.londatiga.android.R;
-
 import org.w3c.dom.Document;
 
 import android.app.ProgressDialog;

@@ -9,7 +9,7 @@ import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 
-import net.londatiga.android.R;
+//import net.londatiga.android.R;
 
 import android.app.ProgressDialog;
 import android.content.Context;
