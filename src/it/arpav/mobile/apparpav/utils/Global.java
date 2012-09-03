@@ -7,9 +7,13 @@ public class Global {
 	public static final String KEY_METEO = 		"METEO";
 	
 	// type sensor key
+	public static final String KEY_TYPE = 	"TIPO";
 	public static final String KEY_LIVIDRO = 	"LIVIDRO";
 	public static final String KEY_PREC = 		"PREC";
-	
+	public static final String KEY_UNIT_MEASUREMENT = "UNITAMISURA";
+	public static final String KEY_METER = "m";
+	public static final String KEY_METER_WORD = "metri";
+	public static final String KEY_MILLIMETER_WORD  = "millimetri";
 	
 	
 	

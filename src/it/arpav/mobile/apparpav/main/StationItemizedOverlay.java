@@ -53,6 +53,7 @@ public class StationItemizedOverlay extends BalloonItemizedOverlay<StationOverla
 
 	@Override
 	protected boolean onBalloonTap(int index, StationOverlayItem item) {
+		pdToLoadStationData = ProgressDialog.show(context, context.getString(R.string.loading), context.getString(R.string.loadingData), true, false);
 		Station station=item.getStation();
 		if(station.getData()==null){
 			if(Util.isOnline(context)){
@@ -80,8 +81,10 @@ public class StationItemizedOverlay extends BalloonItemizedOverlay<StationOverla
 			else
 				Toast.makeText(context, context.getString(R.string.notOnlineNote), Toast.LENGTH_SHORT).show();
 		}
-		else
+		else{
+			pdToLoadStationData.dismiss();
 			startGraphActivity(station);
+		}
 		
 		return true;
 	}
@@ -91,6 +94,7 @@ public class StationItemizedOverlay extends BalloonItemizedOverlay<StationOverla
 	private void startGraphActivity(Station station){
 		Graph graph = new Graph(context);
 		graph.setTime( station.getData().getTime() );
+		graph.setUnitMeasurement( station.getData().getUnitMeasurement() );
 		graph.setValue( station.getData().getValue() );
 		String[] date=station.getData().getDate();
 		graph.setType(station.getData().getType());
@@ -107,9 +111,9 @@ public class StationItemizedOverlay extends BalloonItemizedOverlay<StationOverla
 	
 	
 	private class DownloadStationDataTask extends AsyncTask<Station, Void, Station> {
-		protected void onPreExecute() {
-				pdToLoadStationData = ProgressDialog.show(context, context.getString(R.string.loading), context.getString(R.string.loadingData), true, false);
-		}
+//		protected void onPreExecute() {
+//				pdToLoadStationData = ProgressDialog.show(context, context.getString(R.string.loading), context.getString(R.string.loadingData), true, false);
+//		}
 		
 		protected Station doInBackground(Station... station) {
 			

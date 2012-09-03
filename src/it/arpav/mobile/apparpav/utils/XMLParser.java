@@ -190,20 +190,28 @@ public class XMLParser {
 	 * Parses the main xml containing the index of stations and some of their basic information
 	*/
 	public Data parseXmlStationData(Document doc){
+		boolean oddNumber = true;
+		
 		String type = null;
 		String[]date = null;
 		String[] time = null;
+		String unitMeasurement = null;
 		float[] value = null;
 		
-		
+		// keep sensor node
 		NodeList nodesSensor=doc.getElementsByTagName( KEY_SENSOR );
 		
-		
+		// for each sensor node, test if it is LIVIRDO or PREC sensor
 		for(int i=0;i<nodesSensor.getLength();i++){
 			Element elementSensor = (Element) nodesSensor.item(i);
 			
-		    type = getValue(elementSensor, KEY_TYPE_SENSOR );
+			// set unity of measurement of value, and type sensor value
+		    NodeList nodeUnitMeasurement = elementSensor.getElementsByTagName(Global.KEY_UNIT_MEASUREMENT);
+		    Element elementUnitMeasurement = (Element) nodeUnitMeasurement.item(0);
+		    unitMeasurement=  getCharacterDataFromElement(elementUnitMeasurement) ;
 			
+		    type = getValue(elementSensor, Global.KEY_TYPE);
+		    
 			if( type.equals(Global.KEY_LIVIDRO) || type.equals(Global.KEY_PREC) ){
 				
 				NodeList nodesValue = elementSensor.getElementsByTagName(KEY_VALUE);
@@ -217,12 +225,23 @@ public class XMLParser {
 					Element elementValue = (Element) nodesValue.item(x);
 					value[x]= Float.parseFloat( elementValue.getTextContent());
 					
+					// elaborate the attribute "istante" of "VALORE" tag: divide date and time
 					String instantValue = elementValue.getAttribute(KEY_INSTANT);
 					String dateValue = instantValue.substring(0, 8);
 					String timeValue = instantValue.substring(8, 12);
-					
+
+					// insert some symbols in date and time to have this format: YYYY/MM/DD and HH:MM  
 					date[x]= dateValue = new StringBuffer(dateValue).insert(4, "/").insert(7,"/").toString();
-					time[x]= timeValue = new StringBuffer(timeValue).insert(2, ":").toString();
+					
+					// save the time value only once time every two
+					if(oddNumber){
+						time[x]= timeValue = new StringBuffer(timeValue).insert(2, ":").toString();
+						oddNumber=false;
+					}
+					else{
+						time[x]="";
+						oddNumber=true;
+					}
 					
 				}
 
@@ -231,7 +250,7 @@ public class XMLParser {
 		
 		}
 		
-		return new Data( type, date, time, value);
+		return new Data( type, date, time, unitMeasurement, value);
 	}
 	
 	

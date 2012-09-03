@@ -251,6 +251,7 @@ public class MapStationActivity extends MapActivity {
 //        ActionItem activeGpsItem 	= new ActionItem(ID_ACTIVE_GPS, "Find");
     	
         final QuickAction mQuickAction 	= new QuickAction(this );
+        //final QuickAction mQuickAction 	= new QuickAction(this, QuickAction.VERTICAL );
         
 		mQuickAction.addActionItem(myLocationItem);
 		mQuickAction.addActionItem(nearestItem);

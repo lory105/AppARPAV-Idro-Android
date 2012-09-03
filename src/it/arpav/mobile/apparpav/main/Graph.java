@@ -21,8 +21,8 @@ public class Graph {
 	private String type = null;		// specifics the type of data: LIVIDRO or PREC
 	private String title = null;	// title of graph
 	private String legend = null;	// legend of graph
-	
 	private String[] time = null;	// time data
+	private String unitMeasurement = null;
 	private float[] value = null;	// value data
 	
 	
@@ -44,49 +44,51 @@ public class Graph {
 		XYMultipleSeriesDataset dataset = new XYMultipleSeriesDataset();
 		dataset.addSeries(series.toXYSeries());
 		
-
-		// customization for the bar
+		XYMultipleSeriesRenderer mRenderer = new XYMultipleSeriesRenderer();
 		XYSeriesRenderer renderer = new XYSeriesRenderer();
+		
+		// customization for the bar
 		renderer.setDisplayChartValues(true);
-		renderer.setChartValuesSpacing((float) 0.5);
+		//renderer.setChartValuesSpacing((int) 1);
 		
-		if( type.equals(Global.KEY_LIVIDRO) )
+		if( type.equals(Global.KEY_LIVIDRO) ){
 			renderer.setColor(Color.RED);
-		else
+			mRenderer.setXAxisMax(30);
+			mRenderer.setYAxisMax(10);
+		}
+		else{
 			renderer.setColor(Color.BLUE);
+			mRenderer.setXAxisMax(27);
+			mRenderer.setYAxisMax(25);
+		}
 
-		
 		renderer.setPointStyle(PointStyle.SQUARE);
 		renderer.setFillPoints(true);
 		
-
 		// customization for the graph
-		XYMultipleSeriesRenderer mRenderer = new XYMultipleSeriesRenderer();
 		mRenderer.addSeriesRenderer(renderer);
 		mRenderer.setChartTitle(title);
-		mRenderer.setXTitle("orario");
-		mRenderer.setYTitle("metri");
+		mRenderer.setXTitle("ora");
+		mRenderer.setYTitle(unitMeasurement);
 		mRenderer.setZoomEnabled(true);
 		mRenderer.setZoomButtonsVisible(true);
-
 		mRenderer.setApplyBackgroundColor(true);
 		mRenderer.setBackgroundColor(Color.BLACK);
 	    mRenderer.setMarginsColor(Color.BLACK);
-
-		//mRenderer.
-		mRenderer.setShowGrid(true);
-
-	    mRenderer.setAxisTitleTextSize(14);
+	    mRenderer.setShowGrid(true);
+	    mRenderer.setShowGridX(true);
+	    mRenderer.setAxisTitleTextSize(15);
 	    mRenderer.setChartTitleTextSize(17);
-	    mRenderer.setLabelsTextSize(10);
-	    mRenderer.setLegendTextSize(14);
-	    mRenderer.setPointSize(5f);
-
+	    mRenderer.setLabelsTextSize(11);
+	    mRenderer.setLegendTextSize(17);
+	    mRenderer.setPointSize(3f);
+	    //mRenderer.setPanEnabled(true, false); // lock and unlock the axis moviment
+	    
 	    // -----------------------
 	    // prove sistemazione grafico
 		//mRenderer.initAxesRange( 2);
 		//mRenderer.setXAxisMin(0);
-		mRenderer.setXAxisMax(17);
+
 	    // -----------------------
 	    
 	    
@@ -95,6 +97,7 @@ public class Graph {
 	    		mRenderer.addXTextLabel(i+1, time[i]);
 	    	}
 	    
+	    //mRenderer.setYAxisAlign(Align.CENTER, 2);
 	    mRenderer.setXLabelsAlign(Align.CENTER);
 	    mRenderer.setXLabels(0);
 
@@ -122,6 +125,13 @@ public class Graph {
 		
 	}
 
+	public void setUnitMeasurement(String unitMeasurement){
+		if(unitMeasurement.equals(Global.KEY_METER))
+			this.unitMeasurement=Global.KEY_METER_WORD;
+		else
+			this.unitMeasurement=Global.KEY_MILLIMETER_WORD;
+	}
+	
 	public void setType(String type){
 		this.type=type;
 		if(type.equals( Global.KEY_LIVIDRO) )
