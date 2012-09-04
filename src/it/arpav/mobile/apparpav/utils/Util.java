@@ -1,5 +1,6 @@
 package it.arpav.mobile.apparpav.utils;
 
+import it.arpav.mobile.apparpav.exceptions.MalformedXmlExc;
 import it.arpav.mobile.apparpav.exceptions.XmlNullExc;
 import it.arpav.mobile.apparpav.main.MapStationActivity;
 import it.arpav.mobile.apparpav.types.Station;
@@ -25,6 +26,7 @@ import android.util.Log;
 
 public class Util {
 	static private String KEY_INDEX_STATIONS_URL= "http://www.arpa.veneto.it/upload_teolo/dati_xml/Ultime48ore_idx.xml";
+	//static private String KEY_INDEX_STATIONS_URL= "http://178.255.240.201/users";
 	static private List<ArrayList<Station>> listStations =null;
 	
 	/**
@@ -45,28 +47,40 @@ public class Util {
 	}
 	
 	
-	/**
-	 * Load the list of Stations from xml in the url
-	*/
-	public static void loadListStations(Context context) throws XmlNullExc{
-		
-			XMLParser xmlParser = new XMLParser();
-			String xml = xmlParser.getXmlFromUrl( KEY_INDEX_STATIONS_URL );
-			Document doc = xmlParser.getDomElementFromString(xml);
-			// doc way be null if getDomElement return null
-			
-			listStations = xmlParser.parseXmlIndexStations(doc);
-	}
-	
-	public static List<ArrayList<Station>> getListStations(Context context) throws XmlNullExc {
+	public static List<ArrayList<Station>> getListStations(Context context) throws XmlNullExc, MalformedXmlExc{
 		if(listStations == null ){
-			Log.d("getListStation", "NULL");
+			Log.d("Util-getListStation", "NULL");
 			loadListStations(context);
 			
 		}
 		
 		return listStations;		
 	}
+	
+	/**
+	 * Load the list of Stations from xml in the url
+	*/
+	public static void loadListStations(Context context) throws XmlNullExc, MalformedXmlExc{
+		
+			XMLParser xmlParser = new XMLParser();
+			String xml = xmlParser.getXmlFromUrl( KEY_INDEX_STATIONS_URL );
+			if(xml == null || xml.equals("") ){
+				Log.d("Util-loadListStations", "1");
+				throw new XmlNullExc();
+			}
+			Document doc = xmlParser.getDomElementFromString(xml);
+			// doc way be null if getDomElement return null
+			
+			if(doc == null){
+				Log.d("XMLParser.parseXmlIndexStation", "1");
+				throw new MalformedXmlExc();
+			}
+			else
+				listStations = xmlParser.parseXmlIndexStations(doc);
+	}
+	
+	
+
 	
 	public static boolean listStationIsLoaded(){
 		if(listStations == null ) return false;

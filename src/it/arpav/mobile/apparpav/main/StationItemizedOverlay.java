@@ -22,12 +22,13 @@ import android.util.Log;
 import android.widget.Toast;
 
 import com.google.android.maps.MapView;
+import com.google.android.maps.OverlayItem;
 import com.readystatesoftware.mapviewballoons.BalloonItemizedOverlay;
 
 
 
 public class StationItemizedOverlay extends BalloonItemizedOverlay<StationOverlayItem> {
-	private ArrayList<StationOverlayItem> mOverlays = new ArrayList<StationOverlayItem>();
+	private ArrayList<StationOverlayItem> m_overlays = new ArrayList<StationOverlayItem>();
 	private Context context;
 	private ProgressDialog pdToLoadStationData = null;
 	
@@ -38,16 +39,16 @@ public class StationItemizedOverlay extends BalloonItemizedOverlay<StationOverla
 
 	@Override
 	protected StationOverlayItem createItem(int i) {
-		return mOverlays.get(i);
+		return m_overlays.get(i);
 	}
 
 	@Override
 	public int size() {
-	  return mOverlays.size();
+	  return m_overlays.size();
 	}
 
 	public void addOverlay(StationOverlayItem overlay) {
-	    mOverlays.add(overlay);
+	    m_overlays.add(overlay);
 	    populate();
 	}
 
@@ -118,10 +119,9 @@ public class StationItemizedOverlay extends BalloonItemizedOverlay<StationOverla
 		protected Station doInBackground(Station... station) {
 			
 			try{
-				
-					Util.loadStationData(station[0]);
+				Util.loadStationData(station[0]);
 			} catch (XmlNullExc e){ 
-				Toast.makeText(context, R.string.xmlNullExceptionNote, Toast.LENGTH_SHORT).show();
+				//Toast.makeText(context, R.string.xmlNullExceptionNote, Toast.LENGTH_SHORT).show();
 			}
 			
 			return station[0];
@@ -138,6 +138,10 @@ public class StationItemizedOverlay extends BalloonItemizedOverlay<StationOverla
 		}
 				
 
-	} 
+	}
+	
+	public ArrayList<StationOverlayItem> getOverlay(){
+		return m_overlays;
+	}
 
 }

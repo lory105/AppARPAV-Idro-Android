@@ -1,5 +1,6 @@
 package it.arpav.mobile.apparpav.main;
 
+import it.arpav.mobile.apparpav.exceptions.MalformedXmlExc;
 import it.arpav.mobile.apparpav.exceptions.XmlNullExc;
 import it.arpav.mobile.apparpav.types.Station;
 import it.arpav.mobile.apparpav.utils.Util;
@@ -50,7 +51,6 @@ public class MapStationActivity extends MapActivity {
 	String MY_PREFERENCES = "MyPreferences";
 	String GPS_ALERT_DIALOG_KEY =	"gps_alert_dialog_preferences";
 	
-	
 	//action id of button_menu
 	private static final int ID_MY_LOCATION     = 1;
 	private static final int ID_NEAREST_STATION = 2;
@@ -71,8 +71,6 @@ public class MapStationActivity extends MapActivity {
 	// initial coordinates to center map
 	private static int initialLat = (int) (45.6945683 *1E6);
 	private static int initialLon = (int) (11.8765886 *1E6);
-	// -------------------------------------------------------
-	
 	
 	//private CheckBox checkBoxGpsAlert = null;
 	private ProgressDialog pdToLoadStations = null;
@@ -82,7 +80,8 @@ public class MapStationActivity extends MapActivity {
         super.onCreate(savedInstanceState);
         
         setContentView(R.layout.activity_map_sensor);
-        updateDisplay();
+        
+        Toast.makeText(getApplicationContext(), "onCreate", Toast.LENGTH_SHORT).show();
         
 		// Configure the Map
 		mapView = (TapControlledMapView) findViewById(R.id.mapview);
@@ -108,11 +107,8 @@ public class MapStationActivity extends MapActivity {
         
 		mapController.setZoom(9); // Zoom 1 is world view
 		locationManager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
-        Log.d("444", "111");
 
-		
-		// -------------------------------------------------------
-
+        updateDisplay();
 		
 		locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 0,
 				0, new GeoUpdateHandler());
@@ -120,50 +116,65 @@ public class MapStationActivity extends MapActivity {
 		myLocationOverlay = new MyLocationOverlay(this, mapView);
 		
 		mapOverlays = mapView.getOverlays();
-		
 		mapOverlays.add(myLocationOverlay);
-
-		//---------------------
-//		myLocationOverlay.runOnFirstFix(new Runnable() {
-//			public void run() {
-//				mapView.getController().animateTo(
-//					myLocationOverlay.getMyLocation());
-//			}
-//		});
-		//---------------------
-		
-		
 
         
 		if( Util.isOnline(this)){
 			DownloadStationIndexTask ds = new DownloadStationIndexTask();
 			ds.execute();
-			try{
-				ds.get(30000, TimeUnit.MILLISECONDS);
-			} 
-			catch( TimeoutException e){
-				if (pdToLoadStations != null)
-					pdToLoadStations.dismiss();
-				ds.cancel(true);
-				Toast.makeText(this, getString(R.string.interruptedException), Toast.LENGTH_SHORT).show();
-			} 
-			catch( InterruptedException e){
-				Toast.makeText(this, getString(R.string.interruptedException), Toast.LENGTH_SHORT).show();
-			} catch( ExecutionException e){
-				if (pdToLoadStations != null)
-					pdToLoadStations.dismiss();
-				ds.cancel(true);
-				Toast.makeText(this, getString(R.string.interruptedException), Toast.LENGTH_SHORT).show();
-			}
+//			try{
+//				ds.get(30000, TimeUnit.MILLISECONDS);
+//			} 
+//			catch( TimeoutException e){
+//				if (pdToLoadStations != null)
+//					pdToLoadStations.dismiss();
+//				ds.cancel(true);
+//				//Toast.makeText(this, getString(R.string.interruptedException), Toast.LENGTH_SHORT).show();
+//				Toast.makeText(this, "MapStationActivity-timeoutExc", Toast.LENGTH_SHORT).show();
+//			} 
+//			catch( InterruptedException e){
+//				//Toast.makeText(this, getString(R.string.interruptedException), Toast.LENGTH_SHORT).show();
+//				Toast.makeText(this, "MapStationActivity-interruptedExc", Toast.LENGTH_SHORT).show();
+//			} catch( ExecutionException e){
+//				if (pdToLoadStations != null)
+//					pdToLoadStations.dismiss();
+//				ds.cancel(true);
+//				//Toast.makeText(this, getString(R.string.interruptedException), Toast.LENGTH_SHORT).show();
+//				Toast.makeText(this, "MapStationActivity-ExecutionExc", Toast.LENGTH_SHORT).show();
+//			}
 		}
 		else{
 			if( Util.listStationIsLoaded() )
 				populateMap();
+			
 			showNetworkAlertDialog();
 		}
 		
     }
 
+    @Override
+    protected void onStart(){
+    	super.onStart();
+    	Toast.makeText(getApplicationContext(), "onStart", Toast.LENGTH_SHORT).show();
+    }
+    
+	@Override
+	protected void onResume() {
+		super.onResume();
+		Toast.makeText(getApplicationContext(), "onResume", Toast.LENGTH_SHORT).show();
+		myLocationOverlay.enableMyLocation();
+		myLocationOverlay.enableCompass();
+	}
+
+	@Override
+	protected void onPause() {
+		super.onResume();
+		Toast.makeText(getApplicationContext(), "onPause", Toast.LENGTH_SHORT).show();
+		myLocationOverlay.disableMyLocation();
+		myLocationOverlay.disableCompass();
+	}
+    
+    
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         getMenuInflater().inflate(R.menu.activity_favorites_sensor, menu);
@@ -247,8 +258,8 @@ public class MapStationActivity extends MapActivity {
 		ActionItem myLocationItem 		 = new ActionItem(ID_MY_LOCATION, "Mia posizione", getResources().getDrawable(R.drawable.location));
 		ActionItem nearestStationItem    = new ActionItem(ID_NEAREST_STATION, "Stazione piu vicina", getResources().getDrawable(R.drawable.location));
         ActionItem activeGpsItem 		 = new ActionItem(ID_ACTIVE_GPS, "Attiva GPS", getResources().getDrawable(R.drawable.gps));
-        ActionItem onlyIdroStationItem 	 = new ActionItem(ID_ONLY_IDRO, "Staz. idormetriche", getResources().getDrawable(R.drawable.red48));
-        ActionItem onlyPluvioStationItem = new ActionItem(ID_ONLY_PLUVIO, "Staz. pluviometriche", getResources().getDrawable(R.drawable.blue48));
+        ActionItem onlyIdroStationItem 	 = new ActionItem(ID_ONLY_IDRO, "Staz. idormetriche", getResources().getDrawable(R.drawable.red36));
+        ActionItem onlyPluvioStationItem = new ActionItem(ID_ONLY_PLUVIO, "Staz. pluviometriche", getResources().getDrawable(R.drawable.blue36));
         
         //use setSticky(true) to disable QuickAction dialog being dismissed after an item is clicked
         myLocationItem.setSticky(true);
@@ -361,9 +372,10 @@ public class MapStationActivity extends MapActivity {
     private void loadStations(){
 		try{
 			Util.getListStations(this);
-		} catch( XmlNullExc e ){
-			Toast.makeText(getApplicationContext(), R.string.xmlNullExceptionNote, Toast.LENGTH_SHORT).show();
-		}
+		} catch ( XmlNullExc e ){
+			Log.d("MapStationActivity-loadStations","1");
+			//Toast.makeText(getApplicationContext(), R.string.xmlNullExceptionNote, Toast.LENGTH_SHORT).show();
+		} catch ( MalformedXmlExc e){}
     }
     
     
@@ -395,21 +407,7 @@ public class MapStationActivity extends MapActivity {
 	}
     
 	
-	@Override
-	protected void onResume() {
-		super.onResume();
-		Toast.makeText(getApplicationContext(), "onResume", Toast.LENGTH_SHORT).show();
-		myLocationOverlay.enableMyLocation();
-		myLocationOverlay.enableCompass();
-	}
 
-	@Override
-	protected void onPause() {
-		super.onResume();
-		Toast.makeText(getApplicationContext(), "onPause", Toast.LENGTH_SHORT).show();
-		myLocationOverlay.disableMyLocation();
-		myLocationOverlay.disableCompass();
-	}
     
 	
 	
@@ -423,7 +421,7 @@ public class MapStationActivity extends MapActivity {
 			if( !Util.listStationIsLoaded() )
 				pdToLoadStations = ProgressDialog.show(MapStationActivity.this, getString(R.string.loading), getString(R.string.loadingData), true, false);
 
-			// se non si vede il progress dialog, usare qusto:	
+			// se non si vede il progress dialog, usare questo:	
 //			MapStationActivity.this.pdToLoadStations = new ProgressDialog(MapStationActivity.this);
 //			MapStationActivity.this.pdToLoadStations.setTitle(getString(R.string.loading));
 //			MapStationActivity.this.pdToLoadStations.setMessage(getString(R.string.loadingData));
@@ -433,8 +431,8 @@ public class MapStationActivity extends MapActivity {
 		}
 		
 		protected Void doInBackground(Void... unused) {
-//			Context c = MapStationActivity.this.getApplicationContext();
 			loadStations();
+			Log.d("MapStetionActivity-DownloadStation","1");
 			return null;
 		}
 
@@ -464,47 +462,56 @@ public class MapStationActivity extends MapActivity {
 	
 	protected void populateMap(){
 		List<ArrayList<Station>> listStations = null;
+		// if there was some problem with network or with Arpav server, and list stations aren't loaded,
+		// return without populated map
+		if( !Util.listStationIsLoaded() ){
+			Toast.makeText(getApplicationContext(), "Problemi di connessione o di ricezione dati..", Toast.LENGTH_SHORT).show();
+			return;
+		}
+		
 		try{
 			listStations = Util.getListStations(this);
-		} catch(XmlNullExc e){ 
-			Toast.makeText(getApplicationContext(), "XmlNullExc - populateMap() Map Activity ", Toast.LENGTH_SHORT).show();
-		}
+
 		
-		ArrayList<Station> idroListStations = listStations.get(0);
-		ArrayList<Station> meteoListStations = listStations.get(1);
+			ArrayList<Station> idroListStations = listStations.get(0);
+			ArrayList<Station> meteoListStations = listStations.get(1);
 		
-		Drawable drawableIdro = this.getResources().getDrawable(R.drawable.red16);
-		Drawable drawableMeteo = this.getResources().getDrawable(R.drawable.blue16);
+			Drawable drawableIdro = this.getResources().getDrawable(R.drawable.red16);
+			Drawable drawableMeteo = this.getResources().getDrawable(R.drawable.blue16);
 		
-		for(int i=0; i<idroListStations.size(); i++ ){
-			Station station = idroListStations.get(i);
-			idroStationItemizedOverlay = new StationItemizedOverlay(drawableIdro, mapView);
-			idroStationItemizedOverlay.setShowClose(false);
-			idroStationItemizedOverlay.setShowDisclosure(true);
-			idroStationItemizedOverlay.setSnapToCenter(false);
+			for(int i=0; i<idroListStations.size(); i++ ){
+				Station station = idroListStations.get(i);
+				idroStationItemizedOverlay = new StationItemizedOverlay(drawableIdro, mapView);
+				idroStationItemizedOverlay.setShowClose(false);
+				idroStationItemizedOverlay.setShowDisclosure(true);
+				idroStationItemizedOverlay.setSnapToCenter(false);
 			
-			GeoPoint point = new GeoPoint((int) ( station.getCoordinateY()*1E6),(int) (station.getCoordinateX()*1E6));
-			StationOverlayItem stationOverlayitem = new StationOverlayItem(point, station );
+				GeoPoint point = new GeoPoint((int) ( station.getCoordinateY()*1E6),(int) (station.getCoordinateX()*1E6));
+				StationOverlayItem stationOverlayitem = new StationOverlayItem(point, station );
 			
-			idroStationItemizedOverlay.addOverlay(stationOverlayitem);
-			mapOverlays.add(idroStationItemizedOverlay);
-		}
+				idroStationItemizedOverlay.addOverlay(stationOverlayitem);
+				mapOverlays.add(idroStationItemizedOverlay);
+			}
 		
-		for(int i=0; i<meteoListStations.size(); i++ ){
-			Station station = meteoListStations.get(i);
-			meteoStationItemizedOverlay = new StationItemizedOverlay(drawableMeteo, mapView);
-			meteoStationItemizedOverlay.setShowClose(false);
-			meteoStationItemizedOverlay.setShowDisclosure(true);
-			meteoStationItemizedOverlay.setSnapToCenter(false);
+			for(int i=0; i<meteoListStations.size(); i++ ){
+				Station station = meteoListStations.get(i);
+				meteoStationItemizedOverlay = new StationItemizedOverlay(drawableMeteo, mapView);
+				meteoStationItemizedOverlay.setShowClose(false);
+				meteoStationItemizedOverlay.setShowDisclosure(true);
+				meteoStationItemizedOverlay.setSnapToCenter(false);
 			
-			GeoPoint point = new GeoPoint((int) ( station.getCoordinateY()*1E6),(int) (station.getCoordinateX()*1E6));
-			StationOverlayItem stationOverlayitem = new StationOverlayItem(point, station );
+				GeoPoint point = new GeoPoint((int) ( station.getCoordinateY()*1E6),(int) (station.getCoordinateX()*1E6));
+				StationOverlayItem stationOverlayitem = new StationOverlayItem(point, station );
 			
-			meteoStationItemizedOverlay.addOverlay(stationOverlayitem);
-			mapOverlays.add(meteoStationItemizedOverlay);
-		}
-		//mapOverlays.remove(meteoStationItemizedOverlay);
-		mapView.invalidate();
+				meteoStationItemizedOverlay.addOverlay(stationOverlayitem);
+				mapOverlays.add(meteoStationItemizedOverlay);
+			}
+			//mapOverlays.remove(meteoStationItemizedOverlay);
+			mapView.invalidate();
+		
+		} catch(XmlNullExc e){}
+		  catch(MalformedXmlExc e){}
+		
 	}
 
 

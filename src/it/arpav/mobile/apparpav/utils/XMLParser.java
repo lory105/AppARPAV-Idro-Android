@@ -57,6 +57,7 @@ public class XMLParser {
 	static final String KEY_INSTANT = 		"istante";
 	
 	
+	
 	/**
 	 * Reads an xml file from an url with Http request, and return a string of xml file
 	*/
@@ -67,16 +68,17 @@ public class XMLParser {
             // defaultHttpClient
             DefaultHttpClient httpClient = new DefaultHttpClient();
             HttpGet httpPost = new HttpGet(url);
- 
             HttpResponse httpResponse = httpClient.execute(httpPost);
             HttpEntity httpEntity = httpResponse.getEntity();
             xml = EntityUtils.toString(httpEntity);
- 
         } catch (UnsupportedEncodingException e) {
+        	Log.d("XMLParser-getXmlFromUrl", "UnsupportedEncodingException");
             e.printStackTrace();
         } catch (ClientProtocolException e) {
+        	Log.d("XMLParser-getXmlFromUrl", "ClientProtocolException");
             e.printStackTrace();
         } catch (IOException e) {
+        	Log.d("XMLParser-getXmlFromUrl", "IOException");
             e.printStackTrace();
         }
         // return XML
@@ -87,8 +89,10 @@ public class XMLParser {
 	/**
 	 * Parsing XML content from string and getting DOM element 
 	*/
-	public Document getDomElementFromString( String xml) throws XmlNullExc {
-		if(xml == null ) throw new XmlNullExc(); 
+	public Document getDomElementFromString( String xml) {
+		Log.d("XMLParser-getDOnElementFS", "1");
+		Log.d("XMLParser-getDOnElementFS", xml);
+
 		
 	    Document doc = null;
 	    DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
@@ -115,34 +119,14 @@ public class XMLParser {
 		 
 	}
 	
-	/**
-	 * Get each xml child element value by passing element node name
-	*/
-	public String getValue(Element item, String str) {
-	    NodeList n = item.getElementsByTagName(str);
-	    return this.getElementValue(n.item(0));
-	}
-	 
-	public final String getElementValue( Node elem ) {
-		Node child;
-	    if( elem != null){
-	    	if(elem.hasChildNodes()){
-	    		for( child = elem.getFirstChild(); child != null; child = child.getNextSibling() ){
-	    			if( child.getNodeType() == Node.TEXT_NODE  ){
-	    				return child.getNodeValue();
-	                }
-	            }
-	        }
-	    }
-	    return "";
-	} 
+
 	
 	
 	/**
 	 * Parses the main xml containing the index of stations and some of their basic information
 	*/
 	public List<ArrayList<Station>> parseXmlIndexStations(Document doc){
-		//ArrayList<ArrayList<Station>>[] stationList = new ArrayList<ArrayList<Station>>;
+
 		
 		List<ArrayList<Station>> listStations = new ArrayList<ArrayList<Station>>();
 
@@ -254,7 +238,27 @@ public class XMLParser {
 	}
 	
 	
-	
+	/**
+	 * Get each xml child element value by passing element node name
+	*/
+	public String getValue(Element item, String str) {
+	    NodeList n = item.getElementsByTagName(str);
+	    return this.getElementValue(n.item(0));
+	}
+	 
+	public final String getElementValue( Node elem ) {
+		Node child;
+	    if( elem != null){
+	    	if(elem.hasChildNodes()){
+	    		for( child = elem.getFirstChild(); child != null; child = child.getNextSibling() ){
+	    			if( child.getNodeType() == Node.TEXT_NODE  ){
+	    				return child.getNodeValue();
+	                }
+	            }
+	        }
+	    }
+	    return "";
+	} 
 	
 	
 	/**
