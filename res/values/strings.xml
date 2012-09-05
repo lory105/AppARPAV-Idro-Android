@@ -27,5 +27,10 @@
     <string name="xmlNullExceptionNote">Errore nella lettura dei tadi..</string>
     <string name="idroStation">Staz. idrometriche</string>
     <string name="pluvioStation">Staz. pluviometriche</string>
+    <string name="alert">Attenzione!</string>
+    <string name="alertDialogOutLimitMessage">Ti trovi al di fuori dei confini del Veneto, dove non vi sono stazioni di monitoraggio. Desideri continuare?</string>
+    <color name="graphBackground">#707070</color>
+    <color name="graphLividro">#E15858</color>
+    <color name="graphPluvio">#553DDA</color>
 
 </resources>

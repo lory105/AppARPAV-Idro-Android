@@ -52,12 +52,12 @@ public class Graph {
 		//renderer.setChartValuesSpacing((int) 1);
 		
 		if( type.equals(Global.KEY_LIVIDRO) ){
-			renderer.setColor(Color.RED);
+			renderer.setColor(context.getResources().getColor(R.color.graphLividro));
 			mRenderer.setXAxisMax(30);
 			mRenderer.setYAxisMax(10);
 		}
 		else{
-			renderer.setColor(Color.BLUE);
+			renderer.setColor(context.getResources().getColor(R.color.graphPluvio));
 			mRenderer.setXAxisMax(27);
 			mRenderer.setYAxisMax(25);
 		}
@@ -73,8 +73,8 @@ public class Graph {
 		mRenderer.setZoomEnabled(true);
 		mRenderer.setZoomButtonsVisible(true);
 		mRenderer.setApplyBackgroundColor(true);
-		mRenderer.setBackgroundColor(Color.BLACK);
-	    mRenderer.setMarginsColor(Color.BLACK);
+		mRenderer.setBackgroundColor(context.getResources().getColor(R.color.graphBackground));
+	    mRenderer.setMarginsColor( context.getResources().getColor(R.color.graphBackground));
 	    mRenderer.setShowGrid(true);
 	    mRenderer.setShowGridX(true);
 	    mRenderer.setAxisTitleTextSize(15);

@@ -46,15 +46,17 @@
             android:layout_alignParentLeft="true"
             android:layout_centerVertical="true"
             android:layout_marginLeft="7dp"
-            android:layout_toLeftOf="@+id/bar2"
+            android:layout_toLeftOf="@+id/bar"
             android:gravity="left"
             android:text="@string/titleMap"
             android:textColor="#FFF"
             android:textSize="19dp"
             android:typeface="sans" />
         
+
+        
         <ImageView
-            android:id="@+id/bar2"
+            android:id="@+id/bar"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginBottom="2dp"
@@ -68,33 +70,13 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_alignParentBottom="true"
-            android:layout_alignParentTop="true"
-            android:layout_toLeftOf="@+id/bar3"
-            android:layout_margin="3dp"
-            android:background="@drawable/button_menu" />
-        
-        <ImageView
-            android:id="@+id/bar3"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginBottom="2dp"
-            android:layout_marginTop="2dp"
-            android:maxWidth="1dp"
-            android:layout_toLeftOf="@+id/button_swype_right"
-            android:src="@drawable/status_bar_item_app_background_normal" />
-        
-        <ImageButton
-            android:id="@+id/button_swype_right"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_alignParentBottom="true"
             android:layout_alignParentRight="true"
             android:layout_alignParentTop="true"
-            android:layout_marginTop="6dp"
-            android:layout_marginBottom="5dp"
-            android:background="@drawable/button_swipe_right"
+            android:layout_centerInParent="false"
+            android:layout_centerVertical="true"
+            android:layout_marginRight="2dp"
+            android:background="@drawable/button_menu"
             android:text="" />
-        
         
     </RelativeLayout>
     
@@ -127,7 +109,7 @@
             android:id="@+id/idroImage"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:src="@drawable/red16" />
+            android:src="@drawable/red" />
 
         <TextView
             android:id="@+id/idroText"
@@ -142,7 +124,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginLeft="10dp"
-            android:src="@drawable/blue16" />
+            android:src="@drawable/blue" />
 
         <TextView
             android:id="@+id/pluvioText"
@@ -154,38 +136,4 @@
     
     </LinearLayout>
             
-    <LinearLayout
-        xmlns:android="http://schemas.android.com/apk/res/android"
-        android:layout_width="fill_parent"
-        android:layout_height="26dp"
-        android:background="#C0C0C0"
-        android:gravity="center"
-        android:orientation="horizontal" >
-
-        <Button
-            android:id="@+id/btn_favorites"
-            android:layout_width="fill_parent"
-            android:layout_height="fill_parent"
-            android:layout_marginRight="1dp"
-            android:layout_weight="33"
-            android:background="@drawable/bg_footer"
-            android:paddingLeft="3dp"
-            android:paddingRight="3dp"
-            android:text="@string/favorites"
-            android:textColor="#000"
-            android:textSize="14dp" />
-
-        <Button
-            android:id="@+id/btn_all"
-            android:layout_width="fill_parent"
-            android:layout_height="fill_parent"
-            android:layout_weight="33"
-            android:background="@drawable/bg_footer"
-            android:paddingLeft="3dp"
-            android:paddingRight="3dp"
-            android:text="@string/all"
-            android:textColor="#000"
-            android:textSize="14dp" />
-    </LinearLayout>
-
 </LinearLayout>

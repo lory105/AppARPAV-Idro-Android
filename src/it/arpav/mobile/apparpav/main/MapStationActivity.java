@@ -52,11 +52,9 @@ public class MapStationActivity extends MapActivity {
 	String GPS_ALERT_DIALOG_KEY =	"gps_alert_dialog_preferences";
 	
 	//action id of button_menu
-	private static final int ID_MY_LOCATION     = 1;
-	private static final int ID_NEAREST_STATION = 2;
+	private static final int ID_UPDATE	        = 1;
+	private static final int ID_MY_LOCATION     = 2;
 	private static final int ID_ACTIVE_GPS 		= 3;
-	private static final int ID_ONLY_IDRO 		= 4;
-	private static final int ID_ONLY_PLUVIO 	= 5;
 
 	// -------------------------------------------------------
 	private List<Overlay> mapOverlays;
@@ -69,20 +67,22 @@ public class MapStationActivity extends MapActivity {
 	
 	// -------------------------------------------------------
 	// initial coordinates to center map
-	private static int initialLat = (int) (45.6945683 *1E6);
-	private static int initialLon = (int) (11.8765886 *1E6);
+	private static int initialLat = 	(int) (45.6945683 *1E6);
+	private static int initialLon = 	(int) (11.8765886 *1E6);
+	private static int latTopVeneto =	(int) (46.7300000 *1E6);
+	private static int latBottomVeneto =(int) (44.8000000 *1E6);
+	private static int lonLeftVeneto =	(int) (10.4000000 *1E6);
+	private static int lonRightVeneto =	(int) (13.3000000 *1E6);
 	
-	//private CheckBox checkBoxGpsAlert = null;
 	private ProgressDialog pdToLoadStations = null;
+	
 	
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        
-        setContentView(R.layout.activity_map_sensor);
-        
         Toast.makeText(getApplicationContext(), "onCreate", Toast.LENGTH_SHORT).show();
-        
+        setContentView(R.layout.activity_map_sensor);
+                
 		// Configure the Map
 		mapView = (TapControlledMapView) findViewById(R.id.mapview);
 		mapView.setBuiltInZoomControls(true);
@@ -108,7 +108,7 @@ public class MapStationActivity extends MapActivity {
 		mapController.setZoom(9); // Zoom 1 is world view
 		locationManager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
 
-        updateDisplay();
+		
 		
 		locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 0,
 				0, new GeoUpdateHandler());
@@ -118,9 +118,12 @@ public class MapStationActivity extends MapActivity {
 		mapOverlays = mapView.getOverlays();
 		mapOverlays.add(myLocationOverlay);
 
+		setDisplay();
+		
+
         
 		if( Util.isOnline(this)){
-			DownloadStationIndexTask ds = new DownloadStationIndexTask();
+			LoadStationIndexTask ds = new LoadStationIndexTask();
 			ds.execute();
 //			try{
 //				ds.get(30000, TimeUnit.MILLISECONDS);
@@ -182,6 +185,194 @@ public class MapStationActivity extends MapActivity {
     }
 
     
+    public void setDisplay(){
+    	// create menu option
+    	ActionItem updateItem	 		 = new ActionItem(ID_UPDATE, "Aggiorna", getResources().getDrawable(R.drawable.update));
+		ActionItem myLocationItem 		 = new ActionItem(ID_MY_LOCATION, "Mia posizione", getResources().getDrawable(R.drawable.location));
+        ActionItem activeGpsItem 		 = new ActionItem(ID_ACTIVE_GPS, "Attiva GPS", getResources().getDrawable(R.drawable.gps));
+        
+        //use setSticky(true) to disable QuickAction dialog being dismissed after an item is clicked
+        updateItem.setSticky(true);
+        myLocationItem.setSticky(true);
+        activeGpsItem.setSticky(true);
+        
+        final QuickAction mQuickAction 	= new QuickAction(this, QuickAction.VERTICAL );
+        
+        mQuickAction.addActionItem(updateItem);
+		mQuickAction.addActionItem(myLocationItem);
+		mQuickAction.addActionItem(activeGpsItem);
+		
+		//setup the action item click listener
+		mQuickAction.setOnActionItemClickListener(new QuickAction.OnActionItemClickListener() {
+			@Override
+			public void onItemClick(QuickAction quickAction, int pos, int actionId) {
+				
+				switch (actionId){
+					case ID_UPDATE:
+						Util.setNullListStations();
+						Intent newintent = new Intent( getBaseContext(), MapStationActivity.class);
+						startActivity(newintent);
+						finish();
+						break;
+					case ID_MY_LOCATION:
+						if(! isGpsActive()){
+							showGpsAlertDialog();
+						}
+						else{
+							GeoPoint myPosition = myLocationOverlay.getMyLocation();
+							
+							if(myPosition != null )
+								animateToMyPosition(myPosition);
+							else{
+								Toast.makeText(getApplicationContext(), "Attendi il fix del Gps", Toast.LENGTH_SHORT).show();
+								myLocationOverlay.runOnFirstFix(new Runnable() {
+									public void run() {
+										animateToMyPosition(myLocationOverlay.getMyLocation());
+									}
+								});
+							}
+						}
+						break;
+					case ID_ACTIVE_GPS:
+						Intent intent = new Intent(Settings.ACTION_LOCATION_SOURCE_SETTINGS);
+						startActivity(intent);
+						break;
+				}
+				
+			}
+		});
+		
+		ImageButton buttonMenu = (ImageButton) findViewById(R.id.button_menu);
+	    buttonMenu.setOnClickListener(new View.OnClickListener() {
+		       @Override
+		       public void onClick(View v) {
+					mQuickAction.show(v);
+		       }
+		    });
+        
+    }
+    
+
+//    @Override
+//    public void onBackPressed() {
+//    	// TODO Auto-generated method stub
+//    	super.onBackPressed();
+//    	//finish();
+//    }
+    
+    
+    // parse the xml index stations and create the Util.listStations
+    private void loadStations(){
+		try{
+			Util.getListStations(this);
+		} catch ( XmlNullExc e ){
+			Log.d("MapStationActivity-loadStations","1");
+		} catch ( MalformedXmlExc e){}
+    }
+    
+
+	/**
+	 * AsynchTask to load the index of station 
+	 */
+	private class LoadStationIndexTask extends AsyncTask<Void, Void, Void> {
+		protected void onPreExecute() {
+			if( !Util.listStationIsLoaded() )
+				pdToLoadStations = ProgressDialog.show(MapStationActivity.this, getString(R.string.loading), getString(R.string.loadingData), true, false);
+
+			// se non si vede il progress dialog, usare questo:	
+//			MapStationActivity.this.pdToLoadStations = new ProgressDialog(MapStationActivity.this);
+//			MapStationActivity.this.pdToLoadStations.setTitle(getString(R.string.loading));
+//			MapStationActivity.this.pdToLoadStations.setMessage(getString(R.string.loadingData));
+//			MapStationActivity.this.pdToLoadStations.setIndeterminate(true);
+//			MapStationActivity.this.pdToLoadStations.setCancelable(false);
+//			MapStationActivity.this.pdToLoadStations.show();
+		}
+		
+		protected Void doInBackground(Void... unused) {
+			loadStations();
+			Log.d("MapStetionActivity-DownloadStation","1");
+			return null;
+		}
+
+		protected void onPostExecute(Void unused) {
+			try {
+				if (MapStationActivity.this.pdToLoadStations != null)
+					MapStationActivity.this.pdToLoadStations.dismiss();
+			} catch (Exception e) {}
+			populateMap();
+			// if gps isn't active
+			if(! isGpsActive() ){
+				// check if gps alert dialog user's preference is stored 
+				SharedPreferences prefs = getSharedPreferences(MY_PREFERENCES, Context.MODE_PRIVATE);
+				String textData = prefs.getString(GPS_ALERT_DIALOG_KEY, "show");
+				if( textData.equals("show") )
+					showInitialGpsAlertDialog();
+			}
+		}
+		
+	} 
+	
+	
+
+	
+	
+	
+	
+	protected void populateMap(){
+		List<ArrayList<Station>> listStations = null;
+		// if there was some problem with network or with Arpav server, and list stations aren't loaded,
+		// return without populated map
+		if( !Util.listStationIsLoaded() ){
+			Toast.makeText(getApplicationContext(), "Problemi di connessione o di ricezione dati..", Toast.LENGTH_SHORT).show();
+			return;
+		}
+		
+		try{
+			listStations = Util.getListStations(this);
+
+		
+			ArrayList<Station> idroListStations = listStations.get(0);
+			ArrayList<Station> meteoListStations = listStations.get(1);
+		
+			Drawable drawableIdro = this.getResources().getDrawable(R.drawable.red);
+			Drawable drawableMeteo = this.getResources().getDrawable(R.drawable.blue);
+		
+			for(int i=0; i<idroListStations.size(); i++ ){
+				Station station = idroListStations.get(i);
+				idroStationItemizedOverlay = new StationItemizedOverlay(drawableIdro, mapView);
+				idroStationItemizedOverlay.setShowClose(false);
+				idroStationItemizedOverlay.setShowDisclosure(true);
+				idroStationItemizedOverlay.setSnapToCenter(false);
+			
+				GeoPoint point = new GeoPoint((int) ( station.getCoordinateY()*1E6),(int) (station.getCoordinateX()*1E6));
+				StationOverlayItem stationOverlayitem = new StationOverlayItem(point, station );
+			
+				idroStationItemizedOverlay.addOverlay(stationOverlayitem);
+				mapOverlays.add(idroStationItemizedOverlay);
+			}
+		
+			for(int i=0; i<meteoListStations.size(); i++ ){
+				Station station = meteoListStations.get(i);
+				meteoStationItemizedOverlay = new StationItemizedOverlay(drawableMeteo, mapView);
+				meteoStationItemizedOverlay.setShowClose(false);
+				meteoStationItemizedOverlay.setShowDisclosure(true);
+				meteoStationItemizedOverlay.setSnapToCenter(false);
+			
+				GeoPoint point = new GeoPoint((int) ( station.getCoordinateY()*1E6),(int) (station.getCoordinateX()*1E6));
+				StationOverlayItem stationOverlayitem = new StationOverlayItem(point, station );
+			
+				meteoStationItemizedOverlay.addOverlay(stationOverlayitem);
+				mapOverlays.add(meteoStationItemizedOverlay);
+			}
+			//mapOverlays.remove(meteoStationItemizedOverlay);
+			mapView.invalidate();
+		
+		} catch(XmlNullExc e){}
+		  catch(MalformedXmlExc e){}
+		
+	}
+
+	
     @Override
     protected boolean isRouteDisplayed() {
         return false;
@@ -210,8 +401,10 @@ public class MapStationActivity extends MapActivity {
     }
     
     
-    
-    private void showGpsAlertDialog(){	
+	/**
+	 * message displays when app is lounch if gps isn't active
+	 */
+    private void showInitialGpsAlertDialog(){	
 		final CheckBox checkBoxGpsAlert = new CheckBox(this);
 		checkBoxGpsAlert.setText( R.string.checkBoxGps);
 		LinearLayout linearLayout = new LinearLayout(this);
@@ -252,149 +445,100 @@ public class MapStationActivity extends MapActivity {
     }
     
     
-    public void updateDisplay(){
-		// ---------------------------------------------
-    	// create menu option
-		ActionItem myLocationItem 		 = new ActionItem(ID_MY_LOCATION, "Mia posizione", getResources().getDrawable(R.drawable.location));
-		ActionItem nearestStationItem    = new ActionItem(ID_NEAREST_STATION, "Stazione piu vicina", getResources().getDrawable(R.drawable.location));
-        ActionItem activeGpsItem 		 = new ActionItem(ID_ACTIVE_GPS, "Attiva GPS", getResources().getDrawable(R.drawable.gps));
-        ActionItem onlyIdroStationItem 	 = new ActionItem(ID_ONLY_IDRO, "Staz. idormetriche", getResources().getDrawable(R.drawable.red36));
-        ActionItem onlyPluvioStationItem = new ActionItem(ID_ONLY_PLUVIO, "Staz. pluviometriche", getResources().getDrawable(R.drawable.blue36));
-        
-        //use setSticky(true) to disable QuickAction dialog being dismissed after an item is clicked
-        myLocationItem.setSticky(true);
-        nearestStationItem.setSticky(true);
-        activeGpsItem.setSticky(true);
-        onlyIdroStationItem.setSticky(true);
-        onlyPluvioStationItem.setSticky(true);
-        
-        final QuickAction mQuickAction 	= new QuickAction(this, QuickAction.VERTICAL );
-        
-		mQuickAction.addActionItem(myLocationItem);
-		mQuickAction.addActionItem(nearestStationItem);
-		mQuickAction.addActionItem(activeGpsItem);
-		mQuickAction.addActionItem(onlyIdroStationItem);
-		mQuickAction.addActionItem(onlyPluvioStationItem);
-		
-		//setup the action item click listener
-		mQuickAction.setOnActionItemClickListener(new QuickAction.OnActionItemClickListener() {
-			@Override
-			public void onItemClick(QuickAction quickAction, int pos, int actionId) {
-				
-				switch (actionId){
-					case ID_MY_LOCATION:
-						Toast.makeText(getApplicationContext(), "I have no info this time", Toast.LENGTH_SHORT).show();
-						break;
-					case ID_NEAREST_STATION:
-						Toast.makeText(getApplicationContext(), "I have no info this time", Toast.LENGTH_SHORT).show();
-						break;
-					case ID_ACTIVE_GPS:
-						Intent intent = new Intent(Settings.ACTION_LOCATION_SOURCE_SETTINGS);
-						startActivity(intent);
-						break;
-					case ID_ONLY_IDRO:
-						Toast.makeText(getApplicationContext(), "hhI", Toast.LENGTH_SHORT).show();
-						// example hiding balloon before removing overlay
-						if (idroStationItemizedOverlay.getFocus() != null) {
-							idroStationItemizedOverlay.hideBalloon();
+	/**
+	 * message displays when user want to show her position but gps isn't active
+	 */
+    private void showGpsAlertDialog(){
+    	AlertDialog.Builder alertDialog = new AlertDialog.Builder(this);
+		alertDialog
+			.setTitle(R.string.alertDialogGpsTitle)
+			.setMessage(R.string.alertDialogGpsMessage)
+			.setPositiveButton("Si",new DialogInterface.OnClickListener() {
+				public void onClick(DialogInterface dialog,int id) {
+					myLocationOverlay.runOnFirstFix(new Runnable() {
+						public void run() {
+							animateToMyPosition(myLocationOverlay.getMyLocation());
 						}
-						if (meteoStationItemizedOverlay.getFocus() != null) {
-							meteoStationItemizedOverlay.hideAllBalloons();
-						}
-
-//						mapOverlays.remove(meteoStationItemizedOverlay);
-//						mapOverlays.remove(idroStationItemizedOverlay);
-						mapView.getOverlays().clear();
-						mapOverlays.add(idroStationItemizedOverlay);
-						mapView.invalidate();
-						break;
-						
-					case ID_ONLY_PLUVIO:
-						Toast.makeText(getApplicationContext(), "hhI", Toast.LENGTH_SHORT).show();
-						// example hiding balloon before removing overlay
-						if (idroStationItemizedOverlay.getFocus() != null) {
-							idroStationItemizedOverlay.hideBalloon();
-						}
-						if (meteoStationItemizedOverlay.getFocus() != null) {
-							meteoStationItemizedOverlay.hideAllBalloons();
-						}
-
-						//mapOverlays.remove(idroStationItemizedOverlay);
-						//mapView.getOverlays().remove(idroStationItemizedOverlay);
-						mapView.getOverlays().clear();
-						mapOverlays.add(meteoStationItemizedOverlay);
-						mapView.invalidate();
-						break;
+					});
+					Intent intent = new Intent(Settings.ACTION_LOCATION_SOURCE_SETTINGS);
+					startActivity(intent);
 				}
-				
-			}
-		});
-		
-		ImageButton buttonMenu = (ImageButton) findViewById(R.id.button_menu);
-	    buttonMenu.setOnClickListener(new View.OnClickListener() {
-		       @Override
-		       public void onClick(View v) {
-					mQuickAction.show(v);
-		       }
-		    });
-		// ---------------------------------------------
-        
-    	// btn_favorites is active da togliere
-		final Button btnFavorites = (Button) this.findViewById(R.id.btn_favorites);
-		btnFavorites.setBackgroundDrawable(this.getResources().getDrawable(R.drawable.bg_footer_reversed));
-		
-		// btn_all
-		final Button btnAll = (Button) this.findViewById(R.id.btn_all);
-		btnAll.setBackgroundDrawable(this.getResources().getDrawable(R.drawable.bg_footer));
-		btnAll.setOnClickListener(new View.OnClickListener() {
-			public void onClick(View v) {
-				btnAll.setBackgroundDrawable(getApplicationContext().getResources().getDrawable(R.drawable.bg_footer_reversed));
-				Intent newintent = new Intent();
-				newintent.setClass( getApplication(), AllSensorActivity.class);
-
-				startActivity(newintent);
-			}
-		});
-		// ---------------------------------------------S
-		
+			})
+			.setNegativeButton("No",new DialogInterface.OnClickListener() {
+				public void onClick(DialogInterface dialog,int id) {
+					dialog.cancel();
+				}
+			})
+	       	.show();
     }
+	
     
-
-    @Override
-    public void onBackPressed() {
-    	// TODO Auto-generated method stub
-    	super.onBackPressed();
-    	//finish();
+	/**
+	 * message displays when user is out of Veneto limits
+	 */
+    private void showOutLimitsAlertDialog(final GeoPoint myPosition){ 
+    	AlertDialog.Builder alertDialog = new AlertDialog.Builder(this);
+		alertDialog
+			.setTitle(R.string.alert)
+			.setMessage(R.string.alertDialogOutLimitMessage)
+			.setPositiveButton("Si",new DialogInterface.OnClickListener() {
+				public void onClick(DialogInterface dialog,int id) {
+					mapController.animateTo(myPosition);
+					mapController.setZoom(10);
+				}
+			})
+			.setNegativeButton("No",new DialogInterface.OnClickListener() {
+				public void onClick(DialogInterface dialog,int id) {
+					dialog.cancel();
+				}
+			})
+	       	.show();
     }
-    
-    
-    // parse the xml index stations and create the Util.listStations
-    private void loadStations(){
-		try{
-			Util.getListStations(this);
-		} catch ( XmlNullExc e ){
-			Log.d("MapStationActivity-loadStations","1");
-			//Toast.makeText(getApplicationContext(), R.string.xmlNullExceptionNote, Toast.LENGTH_SHORT).show();
-		} catch ( MalformedXmlExc e){}
-    }
-    
-    
-//    static public void loadStationData( Context context, Station station){
-//    	
-//    }
-    
-    
-	public class GeoUpdateHandler implements LocationListener {
+	
+	/**
+	 * check if gps is active
+	 */
+	public boolean isGpsActive(){
+		if( locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER) )
+			return true;
+		return false;
+	}
+	
+	
+	/**
+	 * check if user is out of Veneto limits
+	 */
+	private boolean isUserOutLimits(GeoPoint myPosition){
+		int lat = myPosition.getLatitudeE6();
 
-		@Override
-		public void onLocationChanged(Location location) {
-			int lat = (int) (location.getLatitude() * 1E6);
-			int lng = (int) (location.getLongitude() * 1E6);
-			GeoPoint point = new GeoPoint(lat, lng);
-			//createMarker();
-			//mapController.animateTo(point); // mapController.setCenter(point);
+		if( lat > latTopVeneto || lat < latBottomVeneto )
+			return true;
+		
+		int lon = myPosition.getLongitudeE6();		
+		if( lon > lonRightVeneto || lon < lonLeftVeneto )
+			return true;
+		
+		return false;
+	}
 
+	
+	/**
+	 * move the map to user position
+	 */
+	private void animateToMyPosition(GeoPoint myPosition){
+		// check if user is uot of Veneto limits
+		if(isUserOutLimits(myPosition))
+			showOutLimitsAlertDialog(myPosition);	
+		else{
+			mapController.animateTo(myPosition);
+			mapController.setZoom(11);
 		}
+	}
+
+	
+	public class GeoUpdateHandler implements LocationListener {
+		@Override
+		public void onLocationChanged(Location location) {}
 
 		@Override
 		public void onProviderDisabled(String provider) {}
@@ -405,114 +549,5 @@ public class MapStationActivity extends MapActivity {
 		@Override
 		public void onStatusChanged(String provider, int status, Bundle extras) {}
 	}
-    
 	
-
-    
-	
-	
-	
-	
-	/**
-	 * ?????????? 
-	 */
-	private class DownloadStationIndexTask extends AsyncTask<Void, Void, Void> {
-		protected void onPreExecute() {
-			if( !Util.listStationIsLoaded() )
-				pdToLoadStations = ProgressDialog.show(MapStationActivity.this, getString(R.string.loading), getString(R.string.loadingData), true, false);
-
-			// se non si vede il progress dialog, usare questo:	
-//			MapStationActivity.this.pdToLoadStations = new ProgressDialog(MapStationActivity.this);
-//			MapStationActivity.this.pdToLoadStations.setTitle(getString(R.string.loading));
-//			MapStationActivity.this.pdToLoadStations.setMessage(getString(R.string.loadingData));
-//			MapStationActivity.this.pdToLoadStations.setIndeterminate(true);
-//			MapStationActivity.this.pdToLoadStations.setCancelable(false);
-//			MapStationActivity.this.pdToLoadStations.show();
-		}
-		
-		protected Void doInBackground(Void... unused) {
-			loadStations();
-			Log.d("MapStetionActivity-DownloadStation","1");
-			return null;
-		}
-
-		protected void onPostExecute(Void unused) {
-			try {
-				if (MapStationActivity.this.pdToLoadStations != null)
-					MapStationActivity.this.pdToLoadStations.dismiss();
-			} catch (Exception e) {}
-			populateMap();
-			// check if gps is activated
-			if(! locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER) ){
-				// check if gps alert dialog user's preference is stored 
-				SharedPreferences prefs = getSharedPreferences(MY_PREFERENCES, Context.MODE_PRIVATE);
-				String textData = prefs.getString(GPS_ALERT_DIALOG_KEY, "show");
-				if( textData.equals("show") )
-					showGpsAlertDialog();
-			}
-		}
-		
-	} 
-	
-	
-
-	
-	
-	
-	
-	protected void populateMap(){
-		List<ArrayList<Station>> listStations = null;
-		// if there was some problem with network or with Arpav server, and list stations aren't loaded,
-		// return without populated map
-		if( !Util.listStationIsLoaded() ){
-			Toast.makeText(getApplicationContext(), "Problemi di connessione o di ricezione dati..", Toast.LENGTH_SHORT).show();
-			return;
-		}
-		
-		try{
-			listStations = Util.getListStations(this);
-
-		
-			ArrayList<Station> idroListStations = listStations.get(0);
-			ArrayList<Station> meteoListStations = listStations.get(1);
-		
-			Drawable drawableIdro = this.getResources().getDrawable(R.drawable.red16);
-			Drawable drawableMeteo = this.getResources().getDrawable(R.drawable.blue16);
-		
-			for(int i=0; i<idroListStations.size(); i++ ){
-				Station station = idroListStations.get(i);
-				idroStationItemizedOverlay = new StationItemizedOverlay(drawableIdro, mapView);
-				idroStationItemizedOverlay.setShowClose(false);
-				idroStationItemizedOverlay.setShowDisclosure(true);
-				idroStationItemizedOverlay.setSnapToCenter(false);
-			
-				GeoPoint point = new GeoPoint((int) ( station.getCoordinateY()*1E6),(int) (station.getCoordinateX()*1E6));
-				StationOverlayItem stationOverlayitem = new StationOverlayItem(point, station );
-			
-				idroStationItemizedOverlay.addOverlay(stationOverlayitem);
-				mapOverlays.add(idroStationItemizedOverlay);
-			}
-		
-			for(int i=0; i<meteoListStations.size(); i++ ){
-				Station station = meteoListStations.get(i);
-				meteoStationItemizedOverlay = new StationItemizedOverlay(drawableMeteo, mapView);
-				meteoStationItemizedOverlay.setShowClose(false);
-				meteoStationItemizedOverlay.setShowDisclosure(true);
-				meteoStationItemizedOverlay.setSnapToCenter(false);
-			
-				GeoPoint point = new GeoPoint((int) ( station.getCoordinateY()*1E6),(int) (station.getCoordinateX()*1E6));
-				StationOverlayItem stationOverlayitem = new StationOverlayItem(point, station );
-			
-				meteoStationItemizedOverlay.addOverlay(stationOverlayitem);
-				mapOverlays.add(meteoStationItemizedOverlay);
-			}
-			//mapOverlays.remove(meteoStationItemizedOverlay);
-			mapView.invalidate();
-		
-		} catch(XmlNullExc e){}
-		  catch(MalformedXmlExc e){}
-		
-	}
-
-
 }

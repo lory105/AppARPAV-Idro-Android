@@ -91,8 +91,6 @@ public class XMLParser {
 	*/
 	public Document getDomElementFromString( String xml) {
 		Log.d("XMLParser-getDOnElementFS", "1");
-		Log.d("XMLParser-getDOnElementFS", xml);
-
 		
 	    Document doc = null;
 	    DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();

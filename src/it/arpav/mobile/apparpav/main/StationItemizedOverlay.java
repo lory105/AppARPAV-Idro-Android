@@ -1,5 +1,6 @@
 package it.arpav.mobile.apparpav.main;
 
+import it.arpav.mobile.apparpav.exceptions.MalformedXmlExc;
 import it.arpav.mobile.apparpav.exceptions.XmlNullExc;
 import it.arpav.mobile.apparpav.types.Station;
 import it.arpav.mobile.apparpav.utils.Util;
@@ -54,29 +55,30 @@ public class StationItemizedOverlay extends BalloonItemizedOverlay<StationOverla
 
 	@Override
 	protected boolean onBalloonTap(int index, StationOverlayItem item) {
-		pdToLoadStationData = ProgressDialog.show(context, context.getString(R.string.loading), context.getString(R.string.loadingData), true, false);
+		
+		pdToLoadStationData = ProgressDialog.show(context, context.getString(R.string.loading), context.getString(R.string.loadingData), true, true);
 		Station station=item.getStation();
 		if(station.getData()==null){
 			if(Util.isOnline(context)){
 				DownloadStationDataTask dt = new DownloadStationDataTask();
 				dt.execute(station);
-				try{
-					dt.get(30000, TimeUnit.MILLISECONDS);
-				} 
-				catch( TimeoutException e){
-					if (pdToLoadStationData != null)
-						pdToLoadStationData.dismiss();
-					dt.cancel(true);
-					Toast.makeText(context, context.getString(R.string.interruptedException), Toast.LENGTH_SHORT).show();
-				} 
-				catch( InterruptedException e){
-					Toast.makeText(context, context.getString(R.string.interruptedException), Toast.LENGTH_SHORT).show();
-				} catch( ExecutionException e){
-					if (pdToLoadStationData != null)
-						pdToLoadStationData.dismiss();
-					dt.cancel(true);
-					Toast.makeText(context, context.getString(R.string.interruptedException), Toast.LENGTH_SHORT).show();
-				}
+//				try{
+//					dt.get(20000, TimeUnit.MILLISECONDS);
+//				} 
+//				catch( TimeoutException e){
+//					if (pdToLoadStationData != null)
+//						pdToLoadStationData.dismiss();
+//					dt.cancel(true);
+//					Toast.makeText(context, context.getString(R.string.interruptedException), Toast.LENGTH_SHORT).show();
+//				} 
+//				catch( InterruptedException e){
+//					Toast.makeText(context, context.getString(R.string.interruptedException), Toast.LENGTH_SHORT).show();
+//				} catch( ExecutionException e){
+//					if (pdToLoadStationData != null)
+//						pdToLoadStationData.dismiss();
+//					dt.cancel(true);
+//					Toast.makeText(context, context.getString(R.string.interruptedException), Toast.LENGTH_SHORT).show();
+//				}
 				
 			}
 			else
@@ -101,7 +103,7 @@ public class StationItemizedOverlay extends BalloonItemizedOverlay<StationOverla
 		graph.setType(station.getData().getType());
 		
 		if(date!=null)
-			graph.setTitle( station.getName() + ", dati dal "+ date[0]+ " al " + date[date.length-1]);
+			graph.setTitle( station.getName() + "\ndati dal "+ date[0]+ " al " + date[date.length-1]);
 
 		
 		Intent graphIntent = graph.getIntent( context );
@@ -122,7 +124,7 @@ public class StationItemizedOverlay extends BalloonItemizedOverlay<StationOverla
 				Util.loadStationData(station[0]);
 			} catch (XmlNullExc e){ 
 				//Toast.makeText(context, R.string.xmlNullExceptionNote, Toast.LENGTH_SHORT).show();
-			}
+			} catch (MalformedXmlExc e){}
 			
 			return station[0];
 		}

@@ -80,6 +80,12 @@ public class Util {
 	}
 	
 	
+	/**
+	 * set to null the list of stations to allow an update of the list
+	*/
+	public static void setNullListStations(){
+		listStations=null;
+	}
 
 	
 	public static boolean listStationIsLoaded(){
@@ -89,17 +95,22 @@ public class Util {
 	
 	
 	
-	public static void loadStationData(Station station) throws XmlNullExc{
+	public static void loadStationData(Station station) throws XmlNullExc, MalformedXmlExc{
 		
 		XMLParser xmlParser = new XMLParser();
 		String xml = xmlParser.getXmlFromUrl( station.getLink() );
+		if(xml == null || xml.equals("") ){
+			Log.d("Util-loadListStations", "1");
+			throw new XmlNullExc();
+		}
 		Document doc = xmlParser.getDomElementFromString(xml);
-		Log.d("PROVA", "no1");
 		// doc way be null if getDomElement return null
-		
-		station.setData(xmlParser.parseXmlStationData(doc));
-		Log.d("PROVA", "no2");
-		//station.setData( xmlParser.parseXmlIndexStations(doc) );
+		if(doc == null){
+			Log.d("XMLParser.parseXmlIndexStation", "1");
+			throw new MalformedXmlExc();
+		}
+		else
+			station.setData(xmlParser.parseXmlStationData(doc));
 	}
 	
 	
