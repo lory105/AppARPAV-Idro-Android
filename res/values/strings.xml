@@ -1,16 +1,8 @@
 <resources>
 
     <string name="app_name">ARPAV Idro</string>
-    <string name="menu_settings">Settings</string>
-    <string name="title_activity_favorites_sensor">FavoritesSensor</string>
-    <string name="favorites">Preferiti</string>
-    <string name="all">Tutti</string>
-    <string name="empty_sensor">Nessun preferito selezionato</string>
-    <string name="empty_sensor_note">Vai alla sezione Tutti per visualizzare tutte le stazioni ed iniziare ad aggiungerle ai tuoi preferiti</string>
-
     <color name="black">#000000</color>
-
-    <string name="title_activity_all_sensor">AllSensorActivity</string>
+    
     <string name="titleMap">Mappa stazioni</string>
     <string name="alertDialogGpsTitle">Segnale GPS disattivato</string>
     <string name="alertDialogGpsMessage">Attivare il Gps per rilevare la propria posizione nella mappa?</string>
@@ -30,7 +22,7 @@
     <string name="alert">Attenzione!</string>
     <string name="alertDialogOutLimitMessage">Ti trovi al di fuori dei confini del Veneto, dove non vi sono stazioni di monitoraggio. Desideri continuare?</string>
     <color name="graphBackground">#707070</color>
-    <color name="graphLividro">#E15858</color>
+    <color name="graphLividro">#EA2444</color>
     <color name="graphPluvio">#553DDA</color>
 
 </resources>

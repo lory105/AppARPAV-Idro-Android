@@ -19,12 +19,7 @@
         <uses-library android:name="com.google.android.maps" />
         <activity
             android:name=".MapStationActivity"
-            android:label="@string/title_activity_favorites_sensor"
-            android:theme="@android:style/Theme.NoTitleBar" >
-        </activity>
-        <activity
-            android:name=".AllSensorActivity"
-            android:label="@string/title_activity_all_sensor"
+            android:label="@string/titleMap"
             android:theme="@android:style/Theme.NoTitleBar" >
         </activity>
         <activity

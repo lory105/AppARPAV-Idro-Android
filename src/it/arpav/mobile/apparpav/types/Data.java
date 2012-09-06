@@ -1,5 +1,10 @@
 package it.arpav.mobile.apparpav.types;
 
+
+/**
+ * Class that consist in the data station
+ * @author Giacomo Lorigiola
+ */
 public class Data {
 
 	private String type = null;		// data type: LIVIDRO or PREC
@@ -38,7 +43,5 @@ public class Data {
 	public float[] getValue(){
 		return value;
 	}
-	
-	
 	
 }

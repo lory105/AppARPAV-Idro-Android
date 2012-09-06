@@ -1,5 +1,10 @@
 package it.arpav.mobile.apparpav.utils;
 
+
+/**
+ * Class that contains static variables for global use. (mainly key variables) 
+ * @author Giacomo Lorigiola
+ */
 public class Global {
 
 	// type station key

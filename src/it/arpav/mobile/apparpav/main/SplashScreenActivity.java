@@ -5,6 +5,7 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.view.MotionEvent;
 
+
 public class SplashScreenActivity extends Activity {
 	
 	protected int _splashTime = 700; 
@@ -16,7 +17,6 @@ public class SplashScreenActivity extends Activity {
 	public void onCreate(Bundle savedInstanceState) {
 	    super.onCreate(savedInstanceState);
 	    setContentView(R.layout.activity_splash_screen);
-	    
 	    
 	    final SplashScreenActivity sPlashScreen = this; 
 	    
@@ -37,7 +37,7 @@ public class SplashScreenActivity extends Activity {
 	                i.setClass(sPlashScreen, MapStationActivity.class);
 	        		startActivity(i);
 	                
-	        		// provo a decommentarlo
+	        		// deprecated, try to use finish()
 	                //stop();
 	            }
 	        }

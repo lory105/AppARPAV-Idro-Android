@@ -2,7 +2,6 @@ package it.arpav.mobile.apparpav.utils;
 
 import it.arpav.mobile.apparpav.exceptions.MalformedXmlExc;
 import it.arpav.mobile.apparpav.exceptions.XmlNullExc;
-import it.arpav.mobile.apparpav.main.MapStationActivity;
 import it.arpav.mobile.apparpav.types.Station;
 
 import java.util.ArrayList;
@@ -10,20 +9,16 @@ import java.util.List;
 
 import org.w3c.dom.Document;
 
-import android.app.ProgressDialog;
 import android.content.Context;
-import android.content.SharedPreferences;
-import android.location.LocationManager;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
-import android.os.AsyncTask;
 import android.util.Log;
+
 
 /**
  * Utilities
  * @author Giacomo Lorigiola
  */
-
 public class Util {
 	static private String KEY_INDEX_STATIONS_URL= "http://www.arpa.veneto.it/upload_teolo/dati_xml/Ultime48ore_idx.xml";
 	//static private String KEY_INDEX_STATIONS_URL= "http://178.255.240.201/users";
@@ -47,6 +42,9 @@ public class Util {
 	}
 	
 	
+	/**
+	 * returns the list of stations: if the list isn't already loaded, try to download it, then returns the list
+	 */
 	public static List<ArrayList<Station>> getListStations(Context context) throws XmlNullExc, MalformedXmlExc{
 		if(listStations == null ){
 			Log.d("Util-getListStation", "NULL");
@@ -88,13 +86,18 @@ public class Util {
 	}
 
 	
+	/**
+	 * check if the list stations is loaded
+	 */
 	public static boolean listStationIsLoaded(){
 		if(listStations == null ) return false;
 		return true;
 	}
 	
 	
-	
+	/**
+	 * Load the data of a Station from xml in a specific url
+	 */
 	public static void loadStationData(Station station) throws XmlNullExc, MalformedXmlExc{
 		
 		XMLParser xmlParser = new XMLParser();
@@ -112,18 +115,6 @@ public class Util {
 		else
 			station.setData(xmlParser.parseXmlStationData(doc));
 	}
-	
-	
-//	public static void getStationData(Station station){
-//		new DownloadStationDataTask().execute(station);
-//	}
-	
-
-	
-	
-	
-	
-	
 	
 	
 }

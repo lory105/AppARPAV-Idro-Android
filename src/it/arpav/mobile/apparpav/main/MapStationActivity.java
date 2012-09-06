@@ -8,9 +8,6 @@ import it.arpav.mobile.apparpav.main.menu.*;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.concurrent.ExecutionException;
-import java.util.concurrent.TimeUnit;
-import java.util.concurrent.TimeoutException;
 
 import android.app.AlertDialog;
 import android.app.ProgressDialog;
@@ -29,7 +26,6 @@ import android.util.Log;
 import android.view.Menu;
 import android.view.MotionEvent;
 import android.view.View;
-import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.ImageButton;
 import android.widget.LinearLayout;
@@ -38,13 +34,16 @@ import android.widget.Toast;
 import com.google.android.maps.GeoPoint;
 import com.google.android.maps.MapActivity;
 import com.google.android.maps.MapController;
-import com.google.android.maps.MapView;
 import com.google.android.maps.MyLocationOverlay;
 import com.google.android.maps.Overlay;
 import com.readystatesoftware.maps.OnSingleTapListener;
 import com.readystatesoftware.maps.TapControlledMapView;
 
 
+/**
+ * Main activity for view the google maps
+ * @author Giacom Lorigiola
+ */
 public class MapStationActivity extends MapActivity {
 	
 	// User's preferences key
@@ -64,17 +63,16 @@ public class MapStationActivity extends MapActivity {
 	private MyLocationOverlay myLocationOverlay;
 	private StationItemizedOverlay idroStationItemizedOverlay;
 	private StationItemizedOverlay meteoStationItemizedOverlay;
+	private ProgressDialog pdToLoadStations = null;
 	
-	// -------------------------------------------------------
 	// initial coordinates to center map
 	private static int initialLat = 	(int) (45.6945683 *1E6);
 	private static int initialLon = 	(int) (11.8765886 *1E6);
+	// Veneto limits
 	private static int latTopVeneto =	(int) (46.7300000 *1E6);
 	private static int latBottomVeneto =(int) (44.8000000 *1E6);
 	private static int lonLeftVeneto =	(int) (10.4000000 *1E6);
 	private static int lonRightVeneto =	(int) (13.3000000 *1E6);
-	
-	private ProgressDialog pdToLoadStations = null;
 	
 	
     @Override
@@ -108,10 +106,10 @@ public class MapStationActivity extends MapActivity {
 		mapController.setZoom(9); // Zoom 1 is world view
 		locationManager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
 
-		
-		
 		locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 0,
 				0, new GeoUpdateHandler());
+
+		
         Log.d("555", "111");
 		myLocationOverlay = new MyLocationOverlay(this, mapView);
 		
@@ -120,8 +118,6 @@ public class MapStationActivity extends MapActivity {
 
 		setDisplay();
 		
-
-        
 		if( Util.isOnline(this)){
 			LoadStationIndexTask ds = new LoadStationIndexTask();
 			ds.execute();
@@ -177,14 +173,16 @@ public class MapStationActivity extends MapActivity {
 		myLocationOverlay.disableCompass();
 	}
     
-    
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
-        getMenuInflater().inflate(R.menu.activity_favorites_sensor, menu);
+        // TODO togliere
         return true;
     }
 
     
+	/**
+	 * create menu button
+	 */
     public void setDisplay(){
     	// create menu option
     	ActionItem updateItem	 		 = new ActionItem(ID_UPDATE, "Aggiorna", getResources().getDrawable(R.drawable.update));
@@ -206,7 +204,6 @@ public class MapStationActivity extends MapActivity {
 		mQuickAction.setOnActionItemClickListener(new QuickAction.OnActionItemClickListener() {
 			@Override
 			public void onItemClick(QuickAction quickAction, int pos, int actionId) {
-				
 				switch (actionId){
 					case ID_UPDATE:
 						Util.setNullListStations();
@@ -261,7 +258,10 @@ public class MapStationActivity extends MapActivity {
 //    }
     
     
-    // parse the xml index stations and create the Util.listStations
+    // 
+	/**
+	 * asks Util class to load the list of stations, if this is not already done
+	 */
     private void loadStations(){
 		try{
 			Util.getListStations(this);
@@ -312,12 +312,10 @@ public class MapStationActivity extends MapActivity {
 		
 	} 
 	
-	
 
-	
-	
-	
-	
+	/**
+	 * Insert the StationItemizeOverlay on the map 
+	 */
 	protected void populateMap(){
 		List<ArrayList<Station>> listStations = null;
 		// if there was some problem with network or with Arpav server, and list stations aren't loaded,
@@ -330,7 +328,6 @@ public class MapStationActivity extends MapActivity {
 		try{
 			listStations = Util.getListStations(this);
 
-		
 			ArrayList<Station> idroListStations = listStations.get(0);
 			ArrayList<Station> meteoListStations = listStations.get(1);
 		
@@ -364,7 +361,7 @@ public class MapStationActivity extends MapActivity {
 				meteoStationItemizedOverlay.addOverlay(stationOverlayitem);
 				mapOverlays.add(meteoStationItemizedOverlay);
 			}
-			//mapOverlays.remove(meteoStationItemizedOverlay);
+			
 			mapView.invalidate();
 		
 		} catch(XmlNullExc e){}
@@ -379,6 +376,9 @@ public class MapStationActivity extends MapActivity {
     }
 
     
+	/**
+	 * message displays when app is launch if network isn't enabled
+	 */
     private void showNetworkAlertDialog(){
 		AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(this);
 		 
@@ -402,7 +402,7 @@ public class MapStationActivity extends MapActivity {
     
     
 	/**
-	 * message displays when app is lounch if gps isn't active
+	 * message displays when app is launch if gps isn't active
 	 */
     private void showInitialGpsAlertDialog(){	
 		final CheckBox checkBoxGpsAlert = new CheckBox(this);
@@ -526,7 +526,7 @@ public class MapStationActivity extends MapActivity {
 	 * move the map to user position
 	 */
 	private void animateToMyPosition(GeoPoint myPosition){
-		// check if user is uot of Veneto limits
+		// check if user is out of Veneto limits
 		if(isUserOutLimits(myPosition))
 			showOutLimitsAlertDialog(myPosition);	
 		else{

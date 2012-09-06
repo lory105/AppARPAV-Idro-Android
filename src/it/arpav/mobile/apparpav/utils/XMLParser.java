@@ -1,6 +1,5 @@
 package it.arpav.mobile.apparpav.utils;
 
-import it.arpav.mobile.apparpav.exceptions.XmlNullExc;
 import it.arpav.mobile.apparpav.types.Data;
 import it.arpav.mobile.apparpav.types.Station;
 
@@ -31,10 +30,9 @@ import org.xml.sax.SAXException;
 import android.util.Log;
 
 /**
- * Utilities
+ * Parser to load information from xml
  * @author Giacomo Lorigiola
  */
-
 public class XMLParser {
 	// key for the station's index xml 
 	static final String KEY_STATION = 		"STAZIONE";
@@ -114,11 +112,8 @@ public class XMLParser {
 		    }
 		 
 		    return doc;
-		 
 	}
-	
-
-	
+		
 	
 	/**
 	 * Parses the main xml containing the index of stations and some of their basic information
@@ -127,12 +122,10 @@ public class XMLParser {
 
 		
 		List<ArrayList<Station>> listStations = new ArrayList<ArrayList<Station>>();
-
 		
 		ArrayList<Station> idroStationList = new ArrayList<Station>();
 		ArrayList<Station> meteoStationList = new ArrayList<Station>();
 		//Element root=doc.getDocumentElement();
-		
 		
 		NodeList nodesStation=doc.getElementsByTagName( KEY_STATION );
         
@@ -163,9 +156,7 @@ public class XMLParser {
 		listStations.add(idroStationList);
 		listStations.add(meteoStationList);
 		return listStations;
-		
 	}
-	
 	
 	
 	/**
@@ -243,7 +234,10 @@ public class XMLParser {
 	    NodeList n = item.getElementsByTagName(str);
 	    return this.getElementValue(n.item(0));
 	}
-	 
+	
+	/**
+	 * utilities
+	*/
 	public final String getElementValue( Node elem ) {
 		Node child;
 	    if( elem != null){

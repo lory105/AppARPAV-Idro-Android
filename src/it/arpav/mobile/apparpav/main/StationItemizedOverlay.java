@@ -27,7 +27,10 @@ import com.google.android.maps.OverlayItem;
 import com.readystatesoftware.mapviewballoons.BalloonItemizedOverlay;
 
 
-
+/**
+ * Personalization of ItemizeOverlay for google maps
+ * @author Giacom Lorigiola
+ */
 public class StationItemizedOverlay extends BalloonItemizedOverlay<StationOverlayItem> {
 	private ArrayList<StationOverlayItem> m_overlays = new ArrayList<StationOverlayItem>();
 	private Context context;
@@ -105,7 +108,6 @@ public class StationItemizedOverlay extends BalloonItemizedOverlay<StationOverla
 		if(date!=null)
 			graph.setTitle( station.getName() + "\ndati dal "+ date[0]+ " al " + date[date.length-1]);
 
-		
 		Intent graphIntent = graph.getIntent( context );
 		context.startActivity(graphIntent);
 	}
@@ -119,11 +121,9 @@ public class StationItemizedOverlay extends BalloonItemizedOverlay<StationOverla
 //		}
 		
 		protected Station doInBackground(Station... station) {
-			
 			try{
 				Util.loadStationData(station[0]);
 			} catch (XmlNullExc e){ 
-				//Toast.makeText(context, R.string.xmlNullExceptionNote, Toast.LENGTH_SHORT).show();
 			} catch (MalformedXmlExc e){}
 			
 			return station[0];
@@ -138,9 +138,8 @@ public class StationItemizedOverlay extends BalloonItemizedOverlay<StationOverla
 			pdToLoadStationData.dismiss();
  			startGraphActivity(station);
 		}
-				
-
 	}
+
 	
 	public ArrayList<StationOverlayItem> getOverlay(){
 		return m_overlays;
