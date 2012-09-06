@@ -4,14 +4,14 @@
     <color name="black">#000000</color>
     
     <string name="titleMap">Mappa stazioni</string>
-    <string name="alertDialogGpsTitle">Segnale GPS disattivato</string>
-    <string name="alertDialogGpsMessage">Attivare il Gps per rilevare la propria posizione nella mappa?</string>
+    <string name="alertDialogLocalizationTitle">Localizzazione disattivata</string>
+    <string name="alertDialogLocalizationMessage">Attivare la localizzazione per rilevare la propria posizione nella mappa?</string>
     <string name="loading">Caricamento..</string>
     <string name="loadingData">Caricamento dei dati</string>
     <string name="alertDialogNetworkTitle">Connessione non disponibile</string>
     <string name="alertDialogNetworkMessage">Connettiti alla rete per visualizzare correttamente i dati</string>
     <string name="btnClose">Chiudi</string>
-    <string name="checkBoxGps">Non richiedermelo in futuro</string>
+    <string name="dontAskAgain">Non richiedermelo in futuro</string>
     <string name="lividroLegend">Livello idrometrico</string>
     <string name="precLegend">Livello pluviometrico</string>
     <string name="notOnlineNote">Problemi di connessione: verifica di essere connesso alla rete</string>
@@ -21,7 +21,7 @@
     <string name="pluvioStation">Staz. pluviometriche</string>
     <string name="alert">Attenzione!</string>
     <string name="alertDialogOutLimitMessage">Ti trovi al di fuori dei confini del Veneto, dove non vi sono stazioni di monitoraggio. Desideri continuare?</string>
-    <color name="graphBackground">#707070</color>
+    <color name="graphBackground">#A3A2A2</color>
     <color name="graphLividro">#EA2444</color>
     <color name="graphPluvio">#553DDA</color>
 

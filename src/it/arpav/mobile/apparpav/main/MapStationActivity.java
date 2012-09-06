@@ -48,12 +48,12 @@ public class MapStationActivity extends MapActivity {
 	
 	// User's preferences key
 	String MY_PREFERENCES = "MyPreferences";
-	String GPS_ALERT_DIALOG_KEY =	"gps_alert_dialog_preferences";
+	String LOCALIZATION_ALERT_DIALOG_KEY =	"localization_alert_dialog_preferences";
 	
 	//action id of button_menu
-	private static final int ID_UPDATE	        = 1;
-	private static final int ID_MY_LOCATION     = 2;
-	private static final int ID_ACTIVE_GPS 		= 3;
+	private static final int ID_UPDATE	        	= 1;
+	private static final int ID_MY_LOCATION     	= 2;
+	private static final int ID_ACTIVE_LOCALIZATION	= 3;
 
 	// -------------------------------------------------------
 	private List<Overlay> mapOverlays;
@@ -78,7 +78,7 @@ public class MapStationActivity extends MapActivity {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        Toast.makeText(getApplicationContext(), "onCreate", Toast.LENGTH_SHORT).show();
+        //Toast.makeText(getApplicationContext(), "onCreate", Toast.LENGTH_SHORT).show();
         setContentView(R.layout.activity_map_sensor);
                 
 		// Configure the Map
@@ -108,7 +108,9 @@ public class MapStationActivity extends MapActivity {
 
 		locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 0,
 				0, new GeoUpdateHandler());
-
+		// TODO test
+		locationManager.requestLocationUpdates(LocationManager.NETWORK_PROVIDER, 0,
+				0, new GeoUpdateHandler());
 		
         Log.d("555", "111");
 		myLocationOverlay = new MyLocationOverlay(this, mapView);
@@ -154,13 +156,13 @@ public class MapStationActivity extends MapActivity {
     @Override
     protected void onStart(){
     	super.onStart();
-    	Toast.makeText(getApplicationContext(), "onStart", Toast.LENGTH_SHORT).show();
+    	//Toast.makeText(getApplicationContext(), "onStart", Toast.LENGTH_SHORT).show();
     }
     
 	@Override
 	protected void onResume() {
 		super.onResume();
-		Toast.makeText(getApplicationContext(), "onResume", Toast.LENGTH_SHORT).show();
+		//Toast.makeText(getApplicationContext(), "onResume", Toast.LENGTH_SHORT).show();
 		myLocationOverlay.enableMyLocation();
 		myLocationOverlay.enableCompass();
 	}
@@ -168,7 +170,7 @@ public class MapStationActivity extends MapActivity {
 	@Override
 	protected void onPause() {
 		super.onResume();
-		Toast.makeText(getApplicationContext(), "onPause", Toast.LENGTH_SHORT).show();
+		//Toast.makeText(getApplicationContext(), "onPause", Toast.LENGTH_SHORT).show();
 		myLocationOverlay.disableMyLocation();
 		myLocationOverlay.disableCompass();
 	}
@@ -187,7 +189,7 @@ public class MapStationActivity extends MapActivity {
     	// create menu option
     	ActionItem updateItem	 		 = new ActionItem(ID_UPDATE, "Aggiorna", getResources().getDrawable(R.drawable.update));
 		ActionItem myLocationItem 		 = new ActionItem(ID_MY_LOCATION, "Mia posizione", getResources().getDrawable(R.drawable.location));
-        ActionItem activeGpsItem 		 = new ActionItem(ID_ACTIVE_GPS, "Attiva GPS", getResources().getDrawable(R.drawable.gps));
+        ActionItem activeGpsItem 		 = new ActionItem(ID_ACTIVE_LOCALIZATION, "Attiva localizzazione", getResources().getDrawable(R.drawable.gps));
         
         //use setSticky(true) to disable QuickAction dialog being dismissed after an item is clicked
         updateItem.setSticky(true);
@@ -212,7 +214,7 @@ public class MapStationActivity extends MapActivity {
 						finish();
 						break;
 					case ID_MY_LOCATION:
-						if(! isGpsActive()){
+						if(! isLocalizationActive()){
 							showGpsAlertDialog();
 						}
 						else{
@@ -221,7 +223,7 @@ public class MapStationActivity extends MapActivity {
 							if(myPosition != null )
 								animateToMyPosition(myPosition);
 							else{
-								Toast.makeText(getApplicationContext(), "Attendi il fix del Gps", Toast.LENGTH_SHORT).show();
+								Toast.makeText(getApplicationContext(), "Attendi il fix del Gps o l'attivazione della rete", Toast.LENGTH_SHORT).show();
 								myLocationOverlay.runOnFirstFix(new Runnable() {
 									public void run() {
 										animateToMyPosition(myLocationOverlay.getMyLocation());
@@ -230,7 +232,7 @@ public class MapStationActivity extends MapActivity {
 							}
 						}
 						break;
-					case ID_ACTIVE_GPS:
+					case ID_ACTIVE_LOCALIZATION:
 						Intent intent = new Intent(Settings.ACTION_LOCATION_SOURCE_SETTINGS);
 						startActivity(intent);
 						break;
@@ -301,10 +303,10 @@ public class MapStationActivity extends MapActivity {
 			} catch (Exception e) {}
 			populateMap();
 			// if gps isn't active
-			if(! isGpsActive() ){
+			if(! isLocalizationActive() ){
 				// check if gps alert dialog user's preference is stored 
 				SharedPreferences prefs = getSharedPreferences(MY_PREFERENCES, Context.MODE_PRIVATE);
-				String textData = prefs.getString(GPS_ALERT_DIALOG_KEY, "show");
+				String textData = prefs.getString(LOCALIZATION_ALERT_DIALOG_KEY, "show");
 				if( textData.equals("show") )
 					showInitialGpsAlertDialog();
 			}
@@ -406,7 +408,7 @@ public class MapStationActivity extends MapActivity {
 	 */
     private void showInitialGpsAlertDialog(){	
 		final CheckBox checkBoxGpsAlert = new CheckBox(this);
-		checkBoxGpsAlert.setText( R.string.checkBoxGps);
+		checkBoxGpsAlert.setText( R.string.dontAskAgain);
 		LinearLayout linearLayout = new LinearLayout(this);
 		linearLayout.setLayoutParams( new LinearLayout.LayoutParams(LinearLayout.LayoutParams.FILL_PARENT,
 		    LinearLayout.LayoutParams.FILL_PARENT));
@@ -415,14 +417,14 @@ public class MapStationActivity extends MapActivity {
     	AlertDialog.Builder alertDialog = new AlertDialog.Builder(this);
 		alertDialog
 			.setView(linearLayout)
-			.setTitle(R.string.alertDialogGpsTitle)
-			.setMessage(R.string.alertDialogGpsMessage)
+			.setTitle(R.string.alertDialogLocalizationTitle)
+			.setMessage(R.string.alertDialogLocalizationMessage)
 			.setPositiveButton("Si",new DialogInterface.OnClickListener() {
 				public void onClick(DialogInterface dialog,int id) {
 					if(checkBoxGpsAlert.isChecked() ){
 						SharedPreferences prefs = getSharedPreferences(MY_PREFERENCES, Context.MODE_PRIVATE);
 						SharedPreferences.Editor editor = prefs.edit();
-						editor.putString(GPS_ALERT_DIALOG_KEY, "not show");
+						editor.putString(LOCALIZATION_ALERT_DIALOG_KEY, "not show");
 						editor.commit();
 					}
 						
@@ -436,7 +438,7 @@ public class MapStationActivity extends MapActivity {
 					if(checkBoxGpsAlert.isChecked() ){
 						SharedPreferences prefs = getSharedPreferences(MY_PREFERENCES, Context.MODE_PRIVATE);
 						SharedPreferences.Editor editor = prefs.edit();
-						editor.putString(GPS_ALERT_DIALOG_KEY, "not show");
+						editor.putString(LOCALIZATION_ALERT_DIALOG_KEY, "not show");
 						editor.commit();
 					}
 				}
@@ -451,8 +453,8 @@ public class MapStationActivity extends MapActivity {
     private void showGpsAlertDialog(){
     	AlertDialog.Builder alertDialog = new AlertDialog.Builder(this);
 		alertDialog
-			.setTitle(R.string.alertDialogGpsTitle)
-			.setMessage(R.string.alertDialogGpsMessage)
+			.setTitle(R.string.alertDialogLocalizationTitle)
+			.setMessage(R.string.alertDialogLocalizationMessage)
 			.setPositiveButton("Si",new DialogInterface.OnClickListener() {
 				public void onClick(DialogInterface dialog,int id) {
 					myLocationOverlay.runOnFirstFix(new Runnable() {
@@ -498,8 +500,8 @@ public class MapStationActivity extends MapActivity {
 	/**
 	 * check if gps is active
 	 */
-	public boolean isGpsActive(){
-		if( locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER) )
+	public boolean isLocalizationActive(){
+		if( locationManager.isProviderEnabled(LocationManager.NETWORK_PROVIDER) || locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER) )
 			return true;
 		return false;
 	}
