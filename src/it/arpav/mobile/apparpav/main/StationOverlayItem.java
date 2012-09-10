@@ -9,7 +9,7 @@ import com.google.android.maps.OverlayItem;
 
 /**
  * Personalization of Overlay Item of google maps. Each OverlayItem contains a Station pointer
- * @author Giacom Lorigiola
+ * @author Giacomo Lorigiola
  */
 public class StationOverlayItem extends OverlayItem {
 

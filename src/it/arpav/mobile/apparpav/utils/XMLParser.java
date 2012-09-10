@@ -1,6 +1,6 @@
 package it.arpav.mobile.apparpav.utils;
 
-import it.arpav.mobile.apparpav.types.Data;
+import it.arpav.mobile.apparpav.types.SensorData;
 import it.arpav.mobile.apparpav.types.Station;
 
 import java.io.IOException;
@@ -45,10 +45,9 @@ public class XMLParser {
 	static final String KEY_LINK = 			"LINK";
 	static final String KEY_TYPE = 			"TIPOSTAZ";
 	
-	
 	// key for a specific xml of a station
 	static final String KEY_SENSOR = 		"SENSORE";
-	static final String KEY_TYPE_SENSOR = 		"TIPO";
+	static final String KEY_TYPE_SENSOR = 	"TIPO";
 	static final String KEY_LIVIDRO = 		"LIVIDRO";
 	static final String KEY_PREC = 			"PREC";
 	static final String KEY_VALUE = 		"VALORE";
@@ -125,7 +124,7 @@ public class XMLParser {
 		
 		ArrayList<Station> idroStationList = new ArrayList<Station>();
 		ArrayList<Station> meteoStationList = new ArrayList<Station>();
-		//Element root=doc.getDocumentElement();
+		ArrayList<Station> idroMeteoStationList = new ArrayList<Station>();
 		
 		NodeList nodesStation=doc.getElementsByTagName( KEY_STATION );
         
@@ -149,12 +148,15 @@ public class XMLParser {
             
 			if( station.getType().equals( Global.KEY_IDRO))
 				idroStationList.add(station);
-			else
+			else if( station.getType().equals( Global.KEY_METEO))
 				meteoStationList.add(station);
+			else if( station.getType().equals( Global.KEY_IDRO_METEO))
+				idroMeteoStationList.add(station);
             
         }
 		listStations.add(idroStationList);
 		listStations.add(meteoStationList);
+		listStations.add(idroMeteoStationList);
 		return listStations;
 	}
 	
@@ -162,7 +164,7 @@ public class XMLParser {
 	/**
 	 * Parses the main xml containing the index of stations and some of their basic information
 	*/
-	public Data parseXmlStationData(Document doc){
+	public void parseXmlStationData(Document doc, Station station){
 		boolean oddNumber = true;
 		
 		String type = null;
@@ -217,13 +219,14 @@ public class XMLParser {
 					}
 					
 				}
-
-				break;
+				if(type.equals(KEY_LIVIDRO))
+					station.setLividroSensorData( new SensorData( type, date, time, unitMeasurement, value));
+				else if(type.equals(KEY_PREC))
+					station.setPrecSensorData( new SensorData( type, date, time, unitMeasurement, value));
 			}
 		
 		}
 		
-		return new Data( type, date, time, unitMeasurement, value);
 	}
 	
 	

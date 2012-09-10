@@ -2,34 +2,30 @@ package it.arpav.mobile.apparpav.main;
 
 import it.arpav.mobile.apparpav.exceptions.MalformedXmlExc;
 import it.arpav.mobile.apparpav.exceptions.XmlNullExc;
+import it.arpav.mobile.apparpav.types.SensorData;
 import it.arpav.mobile.apparpav.types.Station;
+import it.arpav.mobile.apparpav.utils.Global;
 import it.arpav.mobile.apparpav.utils.Util;
 
 import java.util.ArrayList;
-import java.util.concurrent.ExecutionException;
-import java.util.concurrent.TimeUnit;
-import java.util.concurrent.TimeoutException;
 
-//import net.londatiga.android.R;
-
+import android.app.AlertDialog;
 import android.app.ProgressDialog;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
-import android.content.SharedPreferences;
 import android.graphics.drawable.Drawable;
-import android.location.LocationManager;
 import android.os.AsyncTask;
 import android.util.Log;
 import android.widget.Toast;
 
 import com.google.android.maps.MapView;
-import com.google.android.maps.OverlayItem;
 import com.readystatesoftware.mapviewballoons.BalloonItemizedOverlay;
 
 
 /**
  * Personalization of ItemizeOverlay for google maps
- * @author Giacom Lorigiola
+ * @author Giacomo Lorigiola
  */
 public class StationItemizedOverlay extends BalloonItemizedOverlay<StationOverlayItem> {
 	private ArrayList<StationOverlayItem> m_overlays = new ArrayList<StationOverlayItem>();
@@ -57,11 +53,11 @@ public class StationItemizedOverlay extends BalloonItemizedOverlay<StationOverla
 	}
 
 	@Override
-	protected boolean onBalloonTap(int index, StationOverlayItem item) {
+	protected boolean onBalloonTap(int index, StationOverlayItem item) {		
 		
 		pdToLoadStationData = ProgressDialog.show(context, context.getString(R.string.loading), context.getString(R.string.loadingData), true, true);
 		Station station=item.getStation();
-		if(station.getData()==null){
+		if(! station.isDataLoaded() ){
 			if(Util.isOnline(context)){
 				DownloadStationDataTask dt = new DownloadStationDataTask();
 				dt.execute(station);
@@ -84,12 +80,14 @@ public class StationItemizedOverlay extends BalloonItemizedOverlay<StationOverla
 //				}
 				
 			}
-			else
+			else{
+				pdToLoadStationData.dismiss();
 				Toast.makeText(context, context.getString(R.string.notOnlineNote), Toast.LENGTH_SHORT).show();
+			}
 		}
 		else{
 			pdToLoadStationData.dismiss();
-			startGraphActivity(station);
+			choiceSensorData(station);
 		}
 		
 		return true;
@@ -97,13 +95,77 @@ public class StationItemizedOverlay extends BalloonItemizedOverlay<StationOverla
 	
 	
 	
-	private void startGraphActivity(Station station){
+	private void choiceSensorData(final Station station){
+		String type= station.getType();
+		SensorData sensorData = null;
+		
+		if(type.equals(Global.KEY_IDRO)){
+			Log.d("choiceSensorD", "2");
+			sensorData = station.getLividroSensorData();
+			if( sensorData!=null)
+				startGraphActivity( station, sensorData);
+			else showSensorDataAlertDialog();
+			return;
+		}
+		else if(type.equals(Global.KEY_METEO)){
+			sensorData=station.getPrecSensorData();
+			if( sensorData!=null)
+				startGraphActivity( station, sensorData);
+			else showSensorDataAlertDialog();
+			return;
+		}
+		else if(station.getType().equals(Global.KEY_IDRO_METEO)){
+			station.getLividroSensorData();
+			
+			Log.d("StationItemize..-choiceSensorData", "1");
+			
+			final String[] options = { context.getString(R.string.idroValue), context.getString(R.string.pluvioValue) };
+			AlertDialog.Builder builder = new AlertDialog.Builder(context);
+			builder
+				.setTitle("Che valori desideri?")
+				.setItems(options, new DialogInterface.OnClickListener() {
+				@Override
+				public void onClick(DialogInterface dialog, int which) {
+					String option = options[which];
+					SensorData sensorData = null;
+					
+					if(option.contains("idro")){
+						sensorData = station.getLividroSensorData();
+						if( sensorData!=null)
+							startGraphActivity(station, sensorData);
+						else 
+							showSensorDataAlertDialog();
+						return;
+					}
+					else if(option.contains("pluvio")){
+						sensorData = station.getPrecSensorData();
+						if( sensorData!=null)
+							startGraphActivity(station, sensorData);
+						else 
+							showSensorDataAlertDialog();
+						return;
+					}
+						
+					dialog.dismiss();
+				}
+			})
+				.setCancelable(true)
+				.show();
+			return;
+		}
+		
+	}
+	
+	
+	
+	
+	private void startGraphActivity(Station station, SensorData sensorData){
 		Graph graph = new Graph(context);
-		graph.setTime( station.getData().getTime() );
-		graph.setUnitMeasurement( station.getData().getUnitMeasurement() );
-		graph.setValue( station.getData().getValue() );
-		String[] date=station.getData().getDate();
-		graph.setType(station.getData().getType());
+		graph.setTime( sensorData.getTime() );
+		graph.setUnitMeasurement( sensorData.getUnitMeasurement() );
+		graph.setValue( sensorData.getValue() );
+		String[] date= sensorData.getDate();
+		graph.setType(sensorData.getType());
 		
 		if(date!=null)
 			graph.setTitle( station.getName() + "\ndati dal "+ date[0]+ " al " + date[date.length-1]);
@@ -114,11 +176,7 @@ public class StationItemizedOverlay extends BalloonItemizedOverlay<StationOverla
 	
 	
 	
-	
 	private class DownloadStationDataTask extends AsyncTask<Station, Void, Station> {
-//		protected void onPreExecute() {
-//				pdToLoadStationData = ProgressDialog.show(context, context.getString(R.string.loading), context.getString(R.string.loadingData), true, false);
-//		}
 		
 		protected Station doInBackground(Station... station) {
 			try{
@@ -136,7 +194,7 @@ public class StationItemizedOverlay extends BalloonItemizedOverlay<StationOverla
 			} catch (Exception e) {}
 			
 			pdToLoadStationData.dismiss();
- 			startGraphActivity(station);
+			choiceSensorData(station);
 		}
 	}
 
@@ -145,4 +203,22 @@ public class StationItemizedOverlay extends BalloonItemizedOverlay<StationOverla
 		return m_overlays;
 	}
 
+	
+	
+	/**
+	 * message displays when a sensorData for a station isn't available
+	 */
+    private void showSensorDataAlertDialog(){
+    	AlertDialog.Builder alertDialog = new AlertDialog.Builder(context);
+		alertDialog
+			.setTitle(R.string.alert)
+			.setMessage(R.string.alertSensorDataMessage)
+			.setNegativeButton("Chiudi",new DialogInterface.OnClickListener() {
+				public void onClick(DialogInterface dialog,int id) {
+					dialog.cancel();
+				}
+			})
+	       	.show();
+    }
+	
 }

@@ -91,49 +91,84 @@
             xmlns:android="http://schemas.android.com/apk/res/android"
             android:id="@+id/mapview"
             android:layout_width="fill_parent"
-            android:layout_height="fill_parent"
+            android:layout_height="match_parent"
             android:apiKey="0cAL3uyKAK8y0g3BuVfO7Pt-Qe_uEz_zItQeaSw"
             android:clickable="true" />
     
     </LinearLayout>
 
     <LinearLayout
-        xmlns:android="http://schemas.android.com/apk/res/android"
-        android:layout_width="fill_parent"
-        android:layout_height="26dp"
-        android:background="#C0C0C0"
-        android:gravity="center"
-        android:orientation="horizontal" >
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical" >
 
-        <ImageView
-            android:id="@+id/idroImage"
-            android:layout_width="wrap_content"
+        <LinearLayout
+            xmlns:android="http://schemas.android.com/apk/res/android"
+            android:layout_width="fill_parent"
             android:layout_height="wrap_content"
-            android:src="@drawable/red" />
+            android:background="#C0C0C0"
+            android:gravity="center"
+            android:orientation="horizontal" >
 
-        <TextView
-            android:id="@+id/idroText"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="@string/idroStation"
-            android:textSize="14dp"
-            android:textAppearance="?android:attr/textAppearanceMedium" />
+            <ImageView
+                android:id="@+id/idroImage"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:src="@drawable/red" />
 
-        <ImageView
-            android:id="@+id/pluvioImage"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginLeft="10dp"
-            android:src="@drawable/blue" />
+            <TextView
+                android:id="@+id/idroText"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/idroStation"
+                android:textAppearance="?android:attr/textAppearanceMedium"
+                android:textSize="14dp" />
 
-        <TextView
-            android:id="@+id/pluvioText"
-            android:layout_width="wrap_content"
+            <ImageView
+                android:id="@+id/pluvioImage"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="10dp"
+                android:src="@drawable/blue" />
+
+            <TextView
+                android:id="@+id/pluvioText"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/pluvioStation"
+                android:textAppearance="?android:attr/textAppearanceMedium"
+                android:textSize="14dp" />
+
+
+
+        </LinearLayout>
+
+        <LinearLayout
+            xmlns:android="http://schemas.android.com/apk/res/android"
+            android:layout_width="fill_parent"
             android:layout_height="wrap_content"
-            android:text="@string/pluvioStation"
-            android:textSize="14dp"
-            android:textAppearance="?android:attr/textAppearanceMedium" />
-    
+            android:background="#C0C0C0"
+            android:gravity="center"
+            android:orientation="horizontal" >
+            
+            <ImageView
+                android:id="@+id/idroImage"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:src="@drawable/green" />
+
+            <TextView
+                android:id="@+id/idroText"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/idroPluvioStation"
+                android:textAppearance="?android:attr/textAppearanceMedium"
+                android:textSize="14dp" />
+            
+            
+        </LinearLayout>
+        
+        
     </LinearLayout>
             
 </LinearLayout>

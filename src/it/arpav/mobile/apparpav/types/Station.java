@@ -1,21 +1,22 @@
 package it.arpav.mobile.apparpav.types;
 
+
 /**
  * Class that represent a station
  * @author Giacomo Lorigiola
  */
-
 public class Station {
 	private String id			= "";	// id of station
 	private String name 		= "";	// name of station
 	private String reservoir 	= "";	// reservoir of station
-	private String coordinateX 	= "";	// geo Xcoordinates 
-	private String coordinateY 	= "";	// geo Ycoordinates
+	private String coordinateX 	= "";	// geo coordinates X 
+	private String coordinateY 	= "";	// geo coordinates Y
 	private String quota	 	= "";	// quota of station
 	private String link 		= "";	// link to download station data
-	private String type			= "";	// station type: IDRO or METEO
+	private String type			= "";	// station type: IDRO or METEO or IDRO-METEO
 
-	private Data data= null;
+	private SensorData lividroData= null;
+	private SensorData precData= null;
 
 	
 	public void setId( String id){
@@ -82,12 +83,26 @@ public class Station {
 		return type;
 	}
 
-	public void setData( Data data){
-		this.data = data;
+	public void setLividroSensorData( SensorData data){
+		this.lividroData = data;
 	}
 	
-	public Data getData(){
-		return data;
+	public SensorData getLividroSensorData(){
+		return lividroData;
+	}
+	
+	public void setPrecSensorData( SensorData data){
+		this.precData = data;
+	}
+	
+	public SensorData getPrecSensorData(){
+		return precData;
+	}
+	
+	public boolean isDataLoaded(){
+		if(lividroData!=null || precData!=null)
+			return true;
+		return false;
 	}
 	
 }

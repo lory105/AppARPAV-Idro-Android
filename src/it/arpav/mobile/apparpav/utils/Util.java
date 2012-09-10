@@ -21,7 +21,6 @@ import android.util.Log;
  */
 public class Util {
 	static private String KEY_INDEX_STATIONS_URL= "http://www.arpa.veneto.it/upload_teolo/dati_xml/Ultime48ore_idx.xml";
-	//static private String KEY_INDEX_STATIONS_URL= "http://178.255.240.201/users";
 	static private List<ArrayList<Station>> listStations =null;
 	
 	/**
@@ -113,7 +112,7 @@ public class Util {
 			throw new MalformedXmlExc();
 		}
 		else
-			station.setData(xmlParser.parseXmlStationData(doc));
+			xmlParser.parseXmlStationData(doc, station);
 	}
 	
 	

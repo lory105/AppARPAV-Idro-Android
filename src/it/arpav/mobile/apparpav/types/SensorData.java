@@ -5,7 +5,7 @@ package it.arpav.mobile.apparpav.types;
  * Class that consist in the data station
  * @author Giacomo Lorigiola
  */
-public class Data {
+public class SensorData {
 
 	private String type = null;		// data type: LIVIDRO or PREC
 	private String[] date = null;	// array with the date of each value
@@ -14,9 +14,9 @@ public class Data {
 	private float[] value = null;	// array with the value
 
 	
-	public Data(){}
+	public SensorData(){}
 	
-	public Data( String type, String[] date, String[] time, String unitMeasurement, float[]value ){
+	public SensorData( String type, String[] date, String[] time, String unitMeasurement, float[]value ){
 		this.type=type;
 		this.date=date;
 		this.time=time;

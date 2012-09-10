@@ -29,10 +29,16 @@ public class Graph {
 	private float[] value = null;	// value data
 	
 	
+	/**
+	 * create a graph
+	 */
 	public Graph(Context context){
 		this.context=context;
 	}
 	
+	/**
+	 * return a graph activity intent 
+	 */
 	public Intent getIntent(Context context){
 		this.context=context;
 		

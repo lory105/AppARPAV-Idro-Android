@@ -23,7 +23,6 @@ import android.os.AsyncTask;
 import android.os.Bundle;
 import android.provider.Settings;
 import android.util.Log;
-import android.view.Menu;
 import android.view.MotionEvent;
 import android.view.View;
 import android.widget.CheckBox;
@@ -63,6 +62,7 @@ public class MapStationActivity extends MapActivity {
 	private MyLocationOverlay myLocationOverlay;
 	private StationItemizedOverlay idroStationItemizedOverlay;
 	private StationItemizedOverlay meteoStationItemizedOverlay;
+	private StationItemizedOverlay idroMeteoStationItemizedOverlay;
 	private ProgressDialog pdToLoadStations = null;
 	
 	// initial coordinates to center map
@@ -78,7 +78,6 @@ public class MapStationActivity extends MapActivity {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        //Toast.makeText(getApplicationContext(), "onCreate", Toast.LENGTH_SHORT).show();
         setContentView(R.layout.activity_map_sensor);
                 
 		// Configure the Map
@@ -98,7 +97,7 @@ public class MapStationActivity extends MapActivity {
 				return true;
 			}
 		});
-        Log.d("333", "111");
+		
 		// jump the center of the map to these coordinates
         GeoPoint point = new GeoPoint(initialLat , initialLon);
         mapController.animateTo(point);
@@ -112,7 +111,6 @@ public class MapStationActivity extends MapActivity {
 		locationManager.requestLocationUpdates(LocationManager.NETWORK_PROVIDER, 0,
 				0, new GeoUpdateHandler());
 		
-        Log.d("555", "111");
 		myLocationOverlay = new MyLocationOverlay(this, mapView);
 		
 		mapOverlays = mapView.getOverlays();
@@ -156,13 +154,11 @@ public class MapStationActivity extends MapActivity {
     @Override
     protected void onStart(){
     	super.onStart();
-    	//Toast.makeText(getApplicationContext(), "onStart", Toast.LENGTH_SHORT).show();
     }
     
 	@Override
 	protected void onResume() {
 		super.onResume();
-		//Toast.makeText(getApplicationContext(), "onResume", Toast.LENGTH_SHORT).show();
 		myLocationOverlay.enableMyLocation();
 		myLocationOverlay.enableCompass();
 	}
@@ -170,17 +166,10 @@ public class MapStationActivity extends MapActivity {
 	@Override
 	protected void onPause() {
 		super.onResume();
-		//Toast.makeText(getApplicationContext(), "onPause", Toast.LENGTH_SHORT).show();
 		myLocationOverlay.disableMyLocation();
 		myLocationOverlay.disableCompass();
 	}
     
-    @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-        // TODO togliere
-        return true;
-    }
-
     
 	/**
 	 * create menu button
@@ -189,18 +178,18 @@ public class MapStationActivity extends MapActivity {
     	// create menu option
     	ActionItem updateItem	 		 = new ActionItem(ID_UPDATE, "Aggiorna", getResources().getDrawable(R.drawable.update));
 		ActionItem myLocationItem 		 = new ActionItem(ID_MY_LOCATION, "Mia posizione", getResources().getDrawable(R.drawable.location));
-        ActionItem activeGpsItem 		 = new ActionItem(ID_ACTIVE_LOCALIZATION, "Attiva localizzazione", getResources().getDrawable(R.drawable.gps));
+        ActionItem activeLocalizationItem 		 = new ActionItem(ID_ACTIVE_LOCALIZATION, "Attiva localizzazione", getResources().getDrawable(R.drawable.gps));
         
         //use setSticky(true) to disable QuickAction dialog being dismissed after an item is clicked
         updateItem.setSticky(true);
         myLocationItem.setSticky(true);
-        activeGpsItem.setSticky(true);
+        activeLocalizationItem.setSticky(true);
         
         final QuickAction mQuickAction 	= new QuickAction(this, QuickAction.VERTICAL );
         
         mQuickAction.addActionItem(updateItem);
 		mQuickAction.addActionItem(myLocationItem);
-		mQuickAction.addActionItem(activeGpsItem);
+		mQuickAction.addActionItem(activeLocalizationItem);
 		
 		//setup the action item click listener
 		mQuickAction.setOnActionItemClickListener(new QuickAction.OnActionItemClickListener() {
@@ -215,7 +204,7 @@ public class MapStationActivity extends MapActivity {
 						break;
 					case ID_MY_LOCATION:
 						if(! isLocalizationActive()){
-							showGpsAlertDialog();
+							showLocalizationAlertDialog();
 						}
 						else{
 							GeoPoint myPosition = myLocationOverlay.getMyLocation();
@@ -251,16 +240,7 @@ public class MapStationActivity extends MapActivity {
         
     }
     
-
-//    @Override
-//    public void onBackPressed() {
-//    	// TODO Auto-generated method stub
-//    	super.onBackPressed();
-//    	//finish();
-//    }
-    
-    
-    // 
+     
 	/**
 	 * asks Util class to load the list of stations, if this is not already done
 	 */
@@ -281,13 +261,6 @@ public class MapStationActivity extends MapActivity {
 			if( !Util.listStationIsLoaded() )
 				pdToLoadStations = ProgressDialog.show(MapStationActivity.this, getString(R.string.loading), getString(R.string.loadingData), true, false);
 
-			// se non si vede il progress dialog, usare questo:	
-//			MapStationActivity.this.pdToLoadStations = new ProgressDialog(MapStationActivity.this);
-//			MapStationActivity.this.pdToLoadStations.setTitle(getString(R.string.loading));
-//			MapStationActivity.this.pdToLoadStations.setMessage(getString(R.string.loadingData));
-//			MapStationActivity.this.pdToLoadStations.setIndeterminate(true);
-//			MapStationActivity.this.pdToLoadStations.setCancelable(false);
-//			MapStationActivity.this.pdToLoadStations.show();
 		}
 		
 		protected Void doInBackground(Void... unused) {
@@ -302,13 +275,13 @@ public class MapStationActivity extends MapActivity {
 					MapStationActivity.this.pdToLoadStations.dismiss();
 			} catch (Exception e) {}
 			populateMap();
-			// if gps isn't active
+			// if localization isn't active
 			if(! isLocalizationActive() ){
-				// check if gps alert dialog user's preference is stored 
+				// check if localization alert dialog user's preference is stored 
 				SharedPreferences prefs = getSharedPreferences(MY_PREFERENCES, Context.MODE_PRIVATE);
 				String textData = prefs.getString(LOCALIZATION_ALERT_DIALOG_KEY, "show");
 				if( textData.equals("show") )
-					showInitialGpsAlertDialog();
+					showInitialLocalizationAlertDialog();
 			}
 		}
 		
@@ -332,9 +305,11 @@ public class MapStationActivity extends MapActivity {
 
 			ArrayList<Station> idroListStations = listStations.get(0);
 			ArrayList<Station> meteoListStations = listStations.get(1);
+			ArrayList<Station> idroMeteoListStations = listStations.get(2);
 		
 			Drawable drawableIdro = this.getResources().getDrawable(R.drawable.red);
 			Drawable drawableMeteo = this.getResources().getDrawable(R.drawable.blue);
+			Drawable drawableIdroMeteo = this.getResources().getDrawable(R.drawable.green);
 		
 			for(int i=0; i<idroListStations.size(); i++ ){
 				Station station = idroListStations.get(i);
@@ -362,6 +337,21 @@ public class MapStationActivity extends MapActivity {
 			
 				meteoStationItemizedOverlay.addOverlay(stationOverlayitem);
 				mapOverlays.add(meteoStationItemizedOverlay);
+			}
+			
+			
+			for(int i=0; i<idroMeteoListStations.size(); i++ ){
+				Station station = idroMeteoListStations.get(i);
+				idroMeteoStationItemizedOverlay = new StationItemizedOverlay(drawableIdroMeteo, mapView);
+				idroMeteoStationItemizedOverlay.setShowClose(false);
+				idroMeteoStationItemizedOverlay.setShowDisclosure(true);
+				idroMeteoStationItemizedOverlay.setSnapToCenter(false);
+			
+				GeoPoint point = new GeoPoint((int) ( station.getCoordinateY()*1E6),(int) (station.getCoordinateX()*1E6));
+				StationOverlayItem stationOverlayitem = new StationOverlayItem(point, station );
+			
+				idroMeteoStationItemizedOverlay.addOverlay(stationOverlayitem);
+				mapOverlays.add(idroMeteoStationItemizedOverlay);
 			}
 			
 			mapView.invalidate();
@@ -404,16 +394,16 @@ public class MapStationActivity extends MapActivity {
     
     
 	/**
-	 * message displays when app is launch if gps isn't active
+	 * message displays when app is launch if localization isn't active
 	 */
-    private void showInitialGpsAlertDialog(){	
-		final CheckBox checkBoxGpsAlert = new CheckBox(this);
-		checkBoxGpsAlert.setText( R.string.dontAskAgain);
+    private void showInitialLocalizationAlertDialog(){	
+		final CheckBox checkBoxLocalizationAlert = new CheckBox(this);
+		checkBoxLocalizationAlert.setText( R.string.dontAskAgain);
 		LinearLayout linearLayout = new LinearLayout(this);
 		linearLayout.setLayoutParams( new LinearLayout.LayoutParams(LinearLayout.LayoutParams.FILL_PARENT,
 		    LinearLayout.LayoutParams.FILL_PARENT));
 		linearLayout.setOrientation(1);     
-		linearLayout.addView(checkBoxGpsAlert);
+		linearLayout.addView(checkBoxLocalizationAlert);
     	AlertDialog.Builder alertDialog = new AlertDialog.Builder(this);
 		alertDialog
 			.setView(linearLayout)
@@ -421,7 +411,7 @@ public class MapStationActivity extends MapActivity {
 			.setMessage(R.string.alertDialogLocalizationMessage)
 			.setPositiveButton("Si",new DialogInterface.OnClickListener() {
 				public void onClick(DialogInterface dialog,int id) {
-					if(checkBoxGpsAlert.isChecked() ){
+					if(checkBoxLocalizationAlert.isChecked() ){
 						SharedPreferences prefs = getSharedPreferences(MY_PREFERENCES, Context.MODE_PRIVATE);
 						SharedPreferences.Editor editor = prefs.edit();
 						editor.putString(LOCALIZATION_ALERT_DIALOG_KEY, "not show");
@@ -435,7 +425,7 @@ public class MapStationActivity extends MapActivity {
 			.setNegativeButton("No",new DialogInterface.OnClickListener() {
 				public void onClick(DialogInterface dialog,int id) {
 					dialog.cancel();
-					if(checkBoxGpsAlert.isChecked() ){
+					if(checkBoxLocalizationAlert.isChecked() ){
 						SharedPreferences prefs = getSharedPreferences(MY_PREFERENCES, Context.MODE_PRIVATE);
 						SharedPreferences.Editor editor = prefs.edit();
 						editor.putString(LOCALIZATION_ALERT_DIALOG_KEY, "not show");
@@ -448,9 +438,9 @@ public class MapStationActivity extends MapActivity {
     
     
 	/**
-	 * message displays when user want to show her position but gps isn't active
+	 * message displays when user want to show her position but localization isn't active
 	 */
-    private void showGpsAlertDialog(){
+    private void showLocalizationAlertDialog(){
     	AlertDialog.Builder alertDialog = new AlertDialog.Builder(this);
 		alertDialog
 			.setTitle(R.string.alertDialogLocalizationTitle)
@@ -498,7 +488,7 @@ public class MapStationActivity extends MapActivity {
     }
 	
 	/**
-	 * check if gps is active
+	 * check if Localization is active
 	 */
 	public boolean isLocalizationActive(){
 		if( locationManager.isProviderEnabled(LocationManager.NETWORK_PROVIDER) || locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER) )
