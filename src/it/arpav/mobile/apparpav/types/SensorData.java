@@ -11,12 +11,12 @@ public class SensorData {
 	private String[] date = null;	// array with the date of each value
 	private String[] time = null;	// array with the time of each value
 	private String unitMeasurement = null; // unit of measurement for the value
-	private float[] value = null;	// array with the value
+	private double[] value = null;	// array with the value
 
 	
 	public SensorData(){}
 	
-	public SensorData( String type, String[] date, String[] time, String unitMeasurement, float[]value ){
+	public SensorData( String type, String[] date, String[] time, String unitMeasurement, double[]value ){
 		this.type=type;
 		this.date=date;
 		this.time=time;
@@ -40,7 +40,7 @@ public class SensorData {
 		return unitMeasurement;
 	}
 	
-	public float[] getValue(){
+	public double[] getValue(){
 		return value;
 	}
 	

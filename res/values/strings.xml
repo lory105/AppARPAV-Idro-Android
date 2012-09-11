@@ -1,7 +1,6 @@
 <resources>
 
     <string name="app_name">ARPAV Idro</string>
-    <color name="black">#000000</color>
     <string name="titleMap">Mappa stazioni</string>
     <string name="alertDialogLocalizationTitle">Localizzazione disattivata</string>
     <string name="alertDialogLocalizationMessage">Attivare la localizzazione per rilevare la propria posizione nella mappa?</string>
@@ -25,7 +24,10 @@
     <string name="idroPluvioStation">Staz. idro e pluvio metriche</string>
     <string name="alert">Attenzione!</string>
     <string name="alertDialogOutLimitMessage">Ti trovi al di fuori dei confini del Veneto, dove non vi sono stazioni di monitoraggio. Desideri continuare?</string>
-    <color name="graphBackground">#A3A2A2</color>
+    <color name="black">#000000</color>
+    <color name="grey">#736F6E</color>
+    <color name="greySoft">#98AFC7</color>
+    <color name="graphBackground">#F0F0F0 </color>
     <color name="graphLividro">#EA2444</color>
     <color name="graphPluvio">#553DDA</color>
 

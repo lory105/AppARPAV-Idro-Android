@@ -171,7 +171,7 @@ public class XMLParser {
 		String[]date = null;
 		String[] time = null;
 		String unitMeasurement = null;
-		float[] value = null;
+		double[] value = null;
 		
 		// keep sensor node
 		NodeList nodesSensor=doc.getElementsByTagName( KEY_SENSOR );
@@ -194,11 +194,11 @@ public class XMLParser {
 				int size = nodesValue.getLength();
 				date = new String[size];
 				time = new String[size];
-				value = new float[size];
+				value = new double[size];
 				
 				for(int x=0;x<nodesValue.getLength();x++){
 					Element elementValue = (Element) nodesValue.item(x);
-					value[x]= Float.parseFloat( elementValue.getTextContent());
+					value[x]= Double.parseDouble( elementValue.getTextContent());
 					
 					// elaborate the attribute "istante" of "VALORE" tag: divide date and time
 					String instantValue = elementValue.getAttribute(KEY_INSTANT);
