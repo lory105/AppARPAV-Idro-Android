@@ -1,5 +1,7 @@
 package it.arpav.mobile.apparpav.main;
 
+import java.text.DecimalFormat;
+
 import org.achartengine.ChartFactory;
 import org.achartengine.chart.PointStyle;
 import org.achartengine.model.CategorySeries;
@@ -9,8 +11,10 @@ import org.achartengine.renderer.XYSeriesRenderer;
 
 import android.content.Context;
 import android.content.Intent;
+import android.content.res.Configuration;
 import android.graphics.Paint.Align;
 import android.util.Log;
+import android.widget.Toast;
 
 import it.arpav.mobile.apparpav.utils.Global;
 
@@ -44,7 +48,8 @@ public class Graph {
 		this.context=context;
 		
 		// set the max and min value of the values to print in the chart
-		double maxValue= Double.MIN_VALUE;
+		//double maxValue= Double.MIN_VALUE;
+		double maxValue= -100000;
 		double minValue= Double.MAX_VALUE;
 		
 		CategorySeries series = new CategorySeries(legend);
@@ -52,6 +57,7 @@ public class Graph {
 		if( value!=null)
 			for( int i=0; i < value.length; i++){
 				series.add("Bar " + (i+1), value[i]);
+				Log.d(Integer.toString(i), Double.toString(value[i]));
 				if(value[i]>maxValue)
 					maxValue=value[i];
 				if(value[i]<minValue)
@@ -64,34 +70,40 @@ public class Graph {
 		XYMultipleSeriesRenderer mRenderer = new XYMultipleSeriesRenderer();
 		XYSeriesRenderer renderer = new XYSeriesRenderer();
 		
-		// customization for the bar
-		renderer.setDisplayChartValues(true);
-		//renderer.setChartValuesSpacing((int) 1);
-
 		
 		// LIVIDRO chart
 		if( type.equals(Global.KEY_LIVIDRO) ){
 			renderer.setColor(context.getResources().getColor(R.color.graphLividro));
 			mRenderer.setXAxisMax(30);
-			mRenderer.setYAxisMax( (maxValue-minValue)*5 + maxValue );
-			//mRenderer.setYAxisMax(10);
-			Log.d("lividro", "rosso");
+			double max = maxValue + (maxValue-minValue)*7;
+			double min = minValue - (maxValue-minValue)*7;
+			
+			mRenderer.setYAxisMax( max );
+			mRenderer.setYAxisMin( min );
 		}
 		// PREC chart
 		else{
-			renderer.setColor(context.getResources().getColor(R.color.graphPluvio));
-			//mRenderer.setInitialRange(new duble( ),int scale)			
+			renderer.setColor(context.getResources().getColor(R.color.graphPluvio));		
 			mRenderer.setXAxisMax(27);
 
-			double max = (maxValue-minValue)*5 + maxValue;
+			//double max = maxValue + (maxValue-minValue)*5;
+			double max = maxValue + (maxValue-minValue)*2;
 			
-			if(max <0.1)
+			if(max <1)
 				max=4;
 			mRenderer.setYAxisMax((int)max);
 			mRenderer.setYAxisMin(-0.2);
-			Log.d("prec", "blu");
 		}
 
+		
+	    if(time!=null)
+	    	for (int i = 0; i < time.length; i++) { 
+	    		mRenderer.addXTextLabel(i+1, time[i]);
+	    	}
+		
+		// customization for the bar
+		renderer.setDisplayChartValues(true);
+		renderer.setChartValuesSpacing( 4);
 		renderer.setPointStyle(PointStyle.CIRCLE);
 		renderer.setFillPoints(true);
 		
@@ -105,40 +117,52 @@ public class Graph {
 		mRenderer.setApplyBackgroundColor(true);
 	    mRenderer.setShowGrid(true);
 	    mRenderer.setShowGridX(true);
+	    mRenderer.setXLabelsAlign(Align.CENTER);
+	    mRenderer.setXLabels(0);
+//	    mRenderer.setLegendHeight(120);
 		
 		// set color
 		mRenderer.setBackgroundColor(context.getResources().getColor(R.color.graphBackground));
 	    mRenderer.setMarginsColor( context.getResources().getColor(R.color.graphBackground));
-	    //mRenderer.setGridColor(context.getResources().getColor(R.color.black));
 		mRenderer.setGridColor(context.getResources().getColor(R.color.greySoft));
 		mRenderer.setAxesColor(context.getResources().getColor(R.color.black));
 		mRenderer.setLabelsColor(context.getResources().getColor(R.color.black));
 		mRenderer.setXLabelsColor(context.getResources().getColor(R.color.grey));
 		mRenderer.setYLabelsColor(0, context.getResources().getColor(R.color.grey));
-		//mRenderer.setYLabelsColor(1, context.getResources().getColor(R.color.black));
 	    
-		// text size
-	    mRenderer.setAxisTitleTextSize(15);
-	    mRenderer.setChartTitleTextSize(17);
-	    mRenderer.setLabelsTextSize(11);
-	    //mRenderer.setXLabelsAlign(android.graphics.Paint.Align);
-	    mRenderer.setLegendTextSize(17);
-	    mRenderer.setPointSize(3f);
-	    //mRenderer.setPanEnabled(true, false); // lock and unlock the x y axis movement
-		//mRenderer.initAxesRange( 2);
-
-
-	     if(time!=null)
-	    	for (int i = 0; i < time.length; i++) { 
-	    		mRenderer.addXTextLabel(i+1, time[i]);
-	    	}
-	    
-	    //mRenderer.setYAxisAlign(Align.CENTER, 2);
-	    mRenderer.setXLabelsAlign(Align.CENTER);
-	    mRenderer.setXLabels(0);
-
-		Intent intent = ChartFactory.getLineChartIntent( context, dataset, mRenderer);
 		
+		// detection of screen size (small, normal, large, xlarge)
+		// if screen size != small
+		if ((context.getResources().getConfiguration().screenLayout & 
+				Configuration.SCREENLAYOUT_SIZE_MASK) != Configuration.SCREENLAYOUT_SIZE_SMALL) {
+			
+			Log.d("if", "normal");
+			
+			// text size
+			mRenderer.setAxisTitleTextSize(16);
+			mRenderer.setChartTitleTextSize(21);
+			mRenderer.setLabelsTextSize(12);
+			renderer.setChartValuesTextSize(15); // size of value displayed with setDisplayChartValues(true);
+			mRenderer.setLegendTextSize(19);
+			mRenderer.setPointSize(3f);
+			
+		}
+		else{
+			Log.d("screen", "small");
+			
+			mRenderer.setXAxisMax(17);
+			// text size
+			mRenderer.setChartTitleTextSize(11);
+			mRenderer.setAxisTitleTextSize(10);
+			mRenderer.setLabelsTextSize(8);
+			//renderer.setChartValuesTextSize(12); // size of value displayed with setDisplayChartValues(true);
+			//mRenderer.setLegendTextSize(12);
+			mRenderer.setPointSize(3f);
+			//mRenderer.setPanEnabled(true, false); // lock and unlock the x y axis movement
+		}
+	    
+		
+		Intent intent = ChartFactory.getLineChartIntent( context, dataset, mRenderer);
 		return intent;		
 	}
 	
