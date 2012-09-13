@@ -164,11 +164,11 @@ public class StationItemizedOverlay extends BalloonItemizedOverlay<StationOverla
 		graph.setTime( sensorData.getTime() );
 		graph.setUnitMeasurement( sensorData.getUnitMeasurement() );
 		graph.setValue( sensorData.getValue() );
-		String[] date= sensorData.getDate();
+		graph.setDate(sensorData.getDate());
+		graph.setStationName(station.getName());
 		graph.setType(sensorData.getType());
 		
-		if(date!=null)
-			graph.setTitle( station.getName() + "\ndati dal "+ date[0]+ " al " + date[date.length-1]);
+
 
 		Intent graphIntent = graph.getIntent( context );
 		context.startActivity(graphIntent);

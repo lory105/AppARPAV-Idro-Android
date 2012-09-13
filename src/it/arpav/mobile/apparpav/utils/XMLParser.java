@@ -165,7 +165,7 @@ public class XMLParser {
 	 * Parses the main xml containing the index of stations and some of their basic information
 	*/
 	public void parseXmlStationData(Document doc, Station station){
-		boolean oddNumber = true;
+		boolean addNumber = true;
 		
 		String type = null;
 		String[]date = null;
@@ -202,22 +202,10 @@ public class XMLParser {
 					
 					// elaborate the attribute "istante" of "VALORE" tag: divide date and time
 					String instantValue = elementValue.getAttribute(KEY_INSTANT);
-					String dateValue = instantValue.substring(0, 8);
-					String timeValue = instantValue.substring(8, 12);
+					// create the date and time for the x value
+					date[x] = instantValue.substring(6, 8) +"/"+ instantValue.substring(4, 6) +"/"+ instantValue.substring(0, 4);
+					time[x]= instantValue.substring(8, 10)+":"+instantValue.substring(10, 12);
 
-					// insert some symbols in date and time to have this format: YYYY/MM/DD and HH:MM  
-					date[x]= dateValue = new StringBuffer(dateValue).insert(4, "/").insert(7,"/").toString();
-					
-					// save the time value only once time every two
-					if(oddNumber){
-						time[x]= timeValue = new StringBuffer(timeValue).insert(2, ":").toString();
-						oddNumber=false;
-					}
-					else{
-						time[x]="";
-						oddNumber=true;
-					}
-					
 				}
 				if(type.equals(KEY_LIVIDRO))
 					station.setLividroSensorData( new SensorData( type, date, time, unitMeasurement, value));

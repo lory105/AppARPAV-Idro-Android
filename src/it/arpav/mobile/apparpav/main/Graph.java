@@ -14,7 +14,6 @@ import android.content.Intent;
 import android.content.res.Configuration;
 import android.graphics.Paint.Align;
 import android.util.Log;
-import android.widget.Toast;
 
 import it.arpav.mobile.apparpav.utils.Global;
 
@@ -29,7 +28,9 @@ public class Graph {
 	private String type = null;		// specifics the type of data: LIVIDRO or PREC
 	private String title = null;	// title of graph
 	private String legend = null;	// legend of graph
+	private String stationName = null;	// the name of the station
 	private String[] time = null;	// time data
+	private String[] date = null;	// date
 	private String unitMeasurement = null;
 	private double[] value = null;	// value data
 	
@@ -46,6 +47,10 @@ public class Graph {
 	 */
 	public Intent getIntent(Context context){
 		this.context=context;
+		
+		// set the title of the graph
+		if(date!=null)
+			title=( stationName + "\ndati dal "+ date[0]+ " al " + date[date.length-1]);
 		
 		// set the max and min value of the values to print in the chart
 		//double maxValue= Double.MIN_VALUE;
@@ -96,10 +101,30 @@ public class Graph {
 		}
 
 		
-	    if(time!=null)
+	    if(time!=null){
+	    	boolean addTime=true;
+	    
 	    	for (int i = 0; i < time.length; i++) { 
-	    		mRenderer.addXTextLabel(i+1, time[i]);
+	    		if(i==0){
+	    			mRenderer.addXTextLabel(i+1, time[i]+"\n"+ date[i].substring(0, 5) );
+	    			addTime=false;
+	    		}
+	    		else if( time[i].equals("00:00") ||  i==time.length-1 ){
+	    			mRenderer.addXTextLabel(i+1, time[i]+"\n"+ date[i].substring(0, 5) );
+	    			mRenderer.addXTextLabel(i, "" );
+	    			addTime=false;
+	    		}
+	    		else if( addTime){
+	    			mRenderer.addXTextLabel(i+1, time[i]);
+	    			addTime=false;
+	    		}
+	    		else{
+	    			mRenderer.addXTextLabel(i+1, "");
+	    			addTime=true;
+	    		}
+	    		
 	    	}
+	    }
 		
 		// customization for the bar
 		renderer.setDisplayChartValues(true);
@@ -120,6 +145,7 @@ public class Graph {
 	    mRenderer.setXLabelsAlign(Align.CENTER);
 	    mRenderer.setXLabels(0);
 //	    mRenderer.setLegendHeight(120);
+	    mRenderer.setYLabelsAlign(Align.RIGHT);
 		
 		// set color
 		mRenderer.setBackgroundColor(context.getResources().getColor(R.color.graphBackground));
@@ -139,12 +165,12 @@ public class Graph {
 			Log.d("if", "normal");
 			
 			// text size
-			mRenderer.setAxisTitleTextSize(16);
 			mRenderer.setChartTitleTextSize(21);
+			mRenderer.setAxisTitleTextSize(18);
 			mRenderer.setLabelsTextSize(12);
 			renderer.setChartValuesTextSize(15); // size of value displayed with setDisplayChartValues(true);
 			mRenderer.setLegendTextSize(19);
-			mRenderer.setPointSize(3f);
+			mRenderer.setPointSize(2f);
 			
 		}
 		else{
@@ -157,7 +183,7 @@ public class Graph {
 			mRenderer.setLabelsTextSize(8);
 			//renderer.setChartValuesTextSize(12); // size of value displayed with setDisplayChartValues(true);
 			//mRenderer.setLegendTextSize(12);
-			mRenderer.setPointSize(3f);
+			mRenderer.setPointSize(2f);
 			//mRenderer.setPanEnabled(true, false); // lock and unlock the x y axis movement
 		}
 	    
@@ -180,13 +206,21 @@ public class Graph {
 		this.time=time;
 	}
 
+	
 	/**
-	 * set the time title of the graph
+	 * set the station name
 	 */
-	public void setTitle(String title){
-		this.title=title;
+	public void setStationName(String stationName){
+		this.stationName=stationName;
 	}
-
+	
+	/**
+	 * set the date
+	 */
+	public void setDate(String[] date){
+		this.date=date;
+	}
+	
 	
 	public void setUnitMeasurement(String unitMeasurement){
 		if(unitMeasurement.equals(Global.KEY_METER))
