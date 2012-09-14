@@ -107,7 +107,7 @@ public class MapStationActivity extends MapActivity {
 
 		locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 0,
 				0, new GeoUpdateHandler());
-		// TODO test
+		// TODO test if work: the point of location had to move in the map if the phone location moves
 		locationManager.requestLocationUpdates(LocationManager.NETWORK_PROVIDER, 0,
 				0, new GeoUpdateHandler());
 		
@@ -121,26 +121,7 @@ public class MapStationActivity extends MapActivity {
 		if( Util.isOnline(this)){
 			LoadStationIndexTask ds = new LoadStationIndexTask();
 			ds.execute();
-//			try{
-//				ds.get(30000, TimeUnit.MILLISECONDS);
-//			} 
-//			catch( TimeoutException e){
-//				if (pdToLoadStations != null)
-//					pdToLoadStations.dismiss();
-//				ds.cancel(true);
-//				//Toast.makeText(this, getString(R.string.interruptedException), Toast.LENGTH_SHORT).show();
-//				Toast.makeText(this, "MapStationActivity-timeoutExc", Toast.LENGTH_SHORT).show();
-//			} 
-//			catch( InterruptedException e){
-//				//Toast.makeText(this, getString(R.string.interruptedException), Toast.LENGTH_SHORT).show();
-//				Toast.makeText(this, "MapStationActivity-interruptedExc", Toast.LENGTH_SHORT).show();
-//			} catch( ExecutionException e){
-//				if (pdToLoadStations != null)
-//					pdToLoadStations.dismiss();
-//				ds.cancel(true);
-//				//Toast.makeText(this, getString(R.string.interruptedException), Toast.LENGTH_SHORT).show();
-//				Toast.makeText(this, "MapStationActivity-ExecutionExc", Toast.LENGTH_SHORT).show();
-//			}
+
 		}
 		else{
 			if( Util.listStationIsLoaded() )
@@ -265,7 +246,6 @@ public class MapStationActivity extends MapActivity {
 		
 		protected Void doInBackground(Void... unused) {
 			loadStations();
-			Log.d("MapStetionActivity-DownloadStation","1");
 			return null;
 		}
 

@@ -16,7 +16,6 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.drawable.Drawable;
 import android.os.AsyncTask;
-import android.util.Log;
 import android.widget.Toast;
 
 import com.google.android.maps.MapView;
@@ -61,23 +60,6 @@ public class StationItemizedOverlay extends BalloonItemizedOverlay<StationOverla
 			if(Util.isOnline(context)){
 				DownloadStationDataTask dt = new DownloadStationDataTask();
 				dt.execute(station);
-//				try{
-//					dt.get(20000, TimeUnit.MILLISECONDS);
-//				} 
-//				catch( TimeoutException e){
-//					if (pdToLoadStationData != null)
-//						pdToLoadStationData.dismiss();
-//					dt.cancel(true);
-//					Toast.makeText(context, context.getString(R.string.interruptedException), Toast.LENGTH_SHORT).show();
-//				} 
-//				catch( InterruptedException e){
-//					Toast.makeText(context, context.getString(R.string.interruptedException), Toast.LENGTH_SHORT).show();
-//				} catch( ExecutionException e){
-//					if (pdToLoadStationData != null)
-//						pdToLoadStationData.dismiss();
-//					dt.cancel(true);
-//					Toast.makeText(context, context.getString(R.string.interruptedException), Toast.LENGTH_SHORT).show();
-//				}
 				
 			}
 			else{
@@ -100,7 +82,6 @@ public class StationItemizedOverlay extends BalloonItemizedOverlay<StationOverla
 		SensorData sensorData = null;
 		
 		if(type.equals(Global.KEY_IDRO)){
-			Log.d("choiceSensorD", "2");
 			sensorData = station.getLividroSensorData();
 			if( sensorData!=null)
 				startGraphActivity( station, sensorData);
@@ -116,8 +97,6 @@ public class StationItemizedOverlay extends BalloonItemizedOverlay<StationOverla
 		}
 		else if(station.getType().equals(Global.KEY_IDRO_METEO)){
 			station.getLividroSensorData();
-			
-			Log.d("StationItemize..-choiceSensorData", "1");
 			
 			final String[] options = { context.getString(R.string.idroValue), context.getString(R.string.pluvioValue) };
 			AlertDialog.Builder builder = new AlertDialog.Builder(context);
@@ -161,16 +140,13 @@ public class StationItemizedOverlay extends BalloonItemizedOverlay<StationOverla
 	
 	private void startGraphActivity(Station station, SensorData sensorData){
 		Graph graph = new Graph(context);
-		graph.setTime( sensorData.getTime() );
 		graph.setUnitMeasurement( sensorData.getUnitMeasurement() );
 		graph.setValue( sensorData.getValue() );
 		graph.setDate(sensorData.getDate());
 		graph.setStationName(station.getName());
 		graph.setType(sensorData.getType());
-		
 
-
-		Intent graphIntent = graph.getIntent( context );
+		Intent graphIntent = graph.execute( context );
 		context.startActivity(graphIntent);
 	}
 	

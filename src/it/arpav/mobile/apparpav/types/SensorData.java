@@ -1,5 +1,7 @@
 package it.arpav.mobile.apparpav.types;
 
+import java.util.Date;
+
 
 /**
  * Class that consist in the data station
@@ -8,18 +10,16 @@ package it.arpav.mobile.apparpav.types;
 public class SensorData {
 
 	private String type = null;		// data type: LIVIDRO or PREC
-	private String[] date = null;	// array with the date of each value
-	private String[] time = null;	// array with the time of each value
+	private Date[] date = null;	// array with the date of each value
 	private String unitMeasurement = null; // unit of measurement for the value
 	private double[] value = null;	// array with the value
 
 	
 	public SensorData(){}
 	
-	public SensorData( String type, String[] date, String[] time, String unitMeasurement, double[]value ){
+	public SensorData( String type, Date[] date, String unitMeasurement, double[]value ){
 		this.type=type;
 		this.date=date;
-		this.time=time;
 		this.unitMeasurement= unitMeasurement;
 		this.value=value;
 	}
@@ -28,12 +28,8 @@ public class SensorData {
 		return type;
 	}
 	
-	public String[] getDate(){
+	public Date[] getDate(){
 		return date;
-	}
-	
-	public String[] getTime(){
-		return time;
 	}
 
 	public String getUnitMeasurement(){

@@ -12,7 +12,6 @@ import org.w3c.dom.Document;
 import android.content.Context;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
-import android.util.Log;
 
 
 /**
@@ -46,9 +45,7 @@ public class Util {
 	 */
 	public static List<ArrayList<Station>> getListStations(Context context) throws XmlNullExc, MalformedXmlExc{
 		if(listStations == null ){
-			Log.d("Util-getListStation", "NULL");
 			loadListStations(context);
-			
 		}
 		
 		return listStations;		
@@ -62,14 +59,12 @@ public class Util {
 			XMLParser xmlParser = new XMLParser();
 			String xml = xmlParser.getXmlFromUrl( KEY_INDEX_STATIONS_URL );
 			if(xml == null || xml.equals("") ){
-				Log.d("Util-loadListStations", "1");
 				throw new XmlNullExc();
 			}
 			Document doc = xmlParser.getDomElementFromString(xml);
 			// doc way be null if getDomElement return null
 			
 			if(doc == null){
-				Log.d("XMLParser.parseXmlIndexStation", "1");
 				throw new MalformedXmlExc();
 			}
 			else
@@ -102,13 +97,11 @@ public class Util {
 		XMLParser xmlParser = new XMLParser();
 		String xml = xmlParser.getXmlFromUrl( station.getLink() );
 		if(xml == null || xml.equals("") ){
-			Log.d("Util-loadListStations", "1");
 			throw new XmlNullExc();
 		}
 		Document doc = xmlParser.getDomElementFromString(xml);
 		// doc way be null if getDomElement return null
 		if(doc == null){
-			Log.d("XMLParser.parseXmlIndexStation", "1");
 			throw new MalformedXmlExc();
 		}
 		else

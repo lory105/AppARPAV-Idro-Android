@@ -7,6 +7,7 @@ import java.io.IOException;
 import java.io.StringReader;
 import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 import javax.xml.parsers.DocumentBuilder;
@@ -86,9 +87,7 @@ public class XMLParser {
 	/**
 	 * Parsing XML content from string and getting DOM element 
 	*/
-	public Document getDomElementFromString( String xml) {
-		Log.d("XMLParser-getDOnElementFS", "1");
-		
+	public Document getDomElementFromString( String xml) {		
 	    Document doc = null;
 	    DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
 	    	try {
@@ -165,9 +164,10 @@ public class XMLParser {
 	 * Parses the main xml containing the index of stations and some of their basic information
 	*/
 	public void parseXmlStationData(Document doc, Station station){
-		boolean addNumber = true;
 		
 		String type = null;
+		Date[] datee = null;
+		
 		String[]date = null;
 		String[] time = null;
 		String unitMeasurement = null;
@@ -192,6 +192,7 @@ public class XMLParser {
 				NodeList nodesValue = elementSensor.getElementsByTagName(KEY_VALUE);
 				
 				int size = nodesValue.getLength();
+				datee = new Date[size];
 				date = new String[size];
 				time = new String[size];
 				value = new double[size];
@@ -203,14 +204,16 @@ public class XMLParser {
 					// elaborate the attribute "istante" of "VALORE" tag: divide date and time
 					String instantValue = elementValue.getAttribute(KEY_INSTANT);
 					// create the date and time for the x value
+					datee[x] = new Date( stringToInt(instantValue.substring(0, 4)), stringToInt(instantValue.substring(4, 6)), stringToInt(instantValue.substring(6, 8)), stringToInt(instantValue.substring(8, 10)), stringToInt(instantValue.substring(10, 12)));
+					
 					date[x] = instantValue.substring(6, 8) +"/"+ instantValue.substring(4, 6) +"/"+ instantValue.substring(0, 4);
 					time[x]= instantValue.substring(8, 10)+":"+instantValue.substring(10, 12);
 
 				}
 				if(type.equals(KEY_LIVIDRO))
-					station.setLividroSensorData( new SensorData( type, date, time, unitMeasurement, value));
+					station.setLividroSensorData( new SensorData( type, datee, unitMeasurement, value));
 				else if(type.equals(KEY_PREC))
-					station.setPrecSensorData( new SensorData( type, date, time, unitMeasurement, value));
+					station.setPrecSensorData( new SensorData( type, datee, unitMeasurement, value));
 			}
 		
 		}
@@ -255,5 +258,10 @@ public class XMLParser {
 		  }
 		  return "";
 		}	
+	
+	
+	private int stringToInt( String string){
+		return Integer.parseInt(string);
+	}
 	
 }

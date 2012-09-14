@@ -12,8 +12,8 @@
     <string name="alertDialogNetworkMessage">Connettiti alla rete per visualizzare correttamente i dati</string>
     <string name="btnClose">Chiudi</string>
     <string name="dontAskAgain">Non chiedere di nuovo</string>
-    <string name="lividroLegend">Livello idrometrico</string>
-    <string name="precLegend">Livello pluviometrico</string>
+    <string name="lividroLegend">Idrometria</string>
+    <string name="precLegend">Pluviometria</string>
     <string name="notOnlineNote">Problemi di connessione: verifica di essere connesso alla rete</string>
     <string name="interruptedException">Interruzione dell\'esecuzione: possibili problemi di connessione</string>
     <string name="xmlNullExceptionNote">Errore nella lettura dei tadi..</string>
