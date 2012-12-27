@@ -1,6 +1,6 @@
-package it.arpav.mobile.apparpav.types;
+package it.arpav.mobile.apparpav.model;
 
-import java.util.Date;
+import it.arpav.mobile.apparpav.utils.Date;
 
 
 /**

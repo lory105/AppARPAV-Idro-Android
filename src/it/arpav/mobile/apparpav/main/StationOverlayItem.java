@@ -1,7 +1,7 @@
 package it.arpav.mobile.apparpav.main;
 
 
-import it.arpav.mobile.apparpav.types.Station;
+import it.arpav.mobile.apparpav.model.Station;
 
 import com.google.android.maps.GeoPoint;
 import com.google.android.maps.OverlayItem;

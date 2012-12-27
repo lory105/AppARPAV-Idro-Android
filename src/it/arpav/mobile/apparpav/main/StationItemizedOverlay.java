@@ -2,9 +2,8 @@ package it.arpav.mobile.apparpav.main;
 
 import it.arpav.mobile.apparpav.exceptions.MalformedXmlExc;
 import it.arpav.mobile.apparpav.exceptions.XmlNullExc;
-import it.arpav.mobile.apparpav.types.SensorData;
-import it.arpav.mobile.apparpav.types.Station;
-import it.arpav.mobile.apparpav.utils.Global;
+import it.arpav.mobile.apparpav.model.SensorData;
+import it.arpav.mobile.apparpav.model.Station;
 import it.arpav.mobile.apparpav.utils.Util;
 
 import java.util.ArrayList;
@@ -81,21 +80,21 @@ public class StationItemizedOverlay extends BalloonItemizedOverlay<StationOverla
 		String type= station.getType();
 		SensorData sensorData = null;
 		
-		if(type.equals(Global.KEY_IDRO)){
+		if(type.equals(Util.KEY_IDRO)){
 			sensorData = station.getLividroSensorData();
 			if( sensorData!=null)
 				startGraphActivity( station, sensorData);
 			else showSensorDataAlertDialog();
 			return;
 		}
-		else if(type.equals(Global.KEY_METEO)){
+		else if(type.equals(Util.KEY_METEO)){
 			sensorData=station.getPrecSensorData();
 			if( sensorData!=null)
 				startGraphActivity( station, sensorData);
 			else showSensorDataAlertDialog();
 			return;
 		}
-		else if(station.getType().equals(Global.KEY_IDRO_METEO)){
+		else if(station.getType().equals(Util.KEY_IDRO_METEO)){
 			station.getLividroSensorData();
 			
 			final String[] options = { context.getString(R.string.idroValue), context.getString(R.string.pluvioValue) };

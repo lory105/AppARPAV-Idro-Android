@@ -1,6 +1,5 @@
 package it.arpav.mobile.apparpav.main;
 
-import java.util.Date;
 
 import org.achartengine.ChartFactory;
 import org.achartengine.chart.PointStyle;
@@ -15,7 +14,8 @@ import android.content.res.Configuration;
 import android.graphics.Color;
 import android.graphics.Paint.Align;
 
-import it.arpav.mobile.apparpav.utils.Global;
+import it.arpav.mobile.apparpav.utils.Util;
+import it.arpav.mobile.apparpav.utils.Date;
 
 
 /**
@@ -49,7 +49,8 @@ public class Graph {
 		
 		// set the title of the graph
 		if(date!=null)
-			title= (stationName + "\ndati dal "+ date[0].getDate()+"/"+ date[0].getMonth()+ " al " + date[date.length-1].getDate() +"/"+ date[date.length-1].getMonth());
+			title= (stationName + "\ndati dal "+ date[0].getDay()+"/"+ date[0].getMonth()+ " al " 
+		            + date[date.length-1].getDay() +"/"+ date[date.length-1].getMonth());
 		
 		// set the max and min value of the values to print in the chart
 		//double maxValue= Double.MIN_VALUE;
@@ -109,7 +110,7 @@ public class Graph {
 	    mRenderer.setXLabels(0);
 		
 		// LIVIDRO (idro) chart
-		if( type.equals(Global.KEY_LIVIDRO) ){
+		if( type.equals(Util.KEY_LIVIDRO) ){
 			renderer.setColor(Color.RED);
 			
 			double max = maxValue + (maxValue-minValue)*7;
@@ -136,27 +137,30 @@ public class Graph {
 		// LIVIDRO (idro) chart
 	    if(date!=null){
 	    	
-	    	if( type.equals(Global.KEY_LIVIDRO) ){
+	    	if( type.equals(Util.KEY_LIVIDRO) ){
 		    	for (int i = 0; i < date.length; i++) { 
 		    		// jump if the hour has values "30" as minutes 
-		    		if( Integer.toString( date[i].getMinutes()).equals("30")  ){
+		    		if(  date[i].getMinutes().equals("30")  ){
 		    			mRenderer.addXTextLabel(i+1, "");
 		    		}
 		    		// print the first Y value of chart with the date
 		    		else if(i==0 || i==1 ){
-		    			mRenderer.addXTextLabel(i+1, date[i].getHours()+"\n"+ date[i].getDate()+"/"+ date[i].getMonth());
+		    			mRenderer.addXTextLabel(i+1, date[i].getHours()+"\n"+ date[i].getDay()+"/"+ date[i].getMonth());
 		    			i++;
 		    			mRenderer.addXTextLabel(i+1, "");
 		    		}
 		    		// print the hour of midnight with the date
-		    		else if( Integer.toString( date[i].getHours()).equals("0") ){
-		    			mRenderer.addXTextLabel(i+1, "00" +"\n"+ date[i].getDate()+"/"+ date[i].getMonth());
+		    		else if( date[i].getHours().equals("0") ){
+		    			mRenderer.addXTextLabel(i+1, "24" +"\n"+ date[i].getDay()+"/"+ date[i].getMonth());
 		    			i++;
 		    			mRenderer.addXTextLabel(i+1, "");
 		    		}
 		    		// print all the hour 3, 6, 9, 12, 15, 18, 21, 00
-		    		else if( Integer.toString( date[i].getHours()).equals("3") ||  Integer.toString( date[i].getHours()).equals("6") || Integer.toString( date[i].getHours()).equals("9") || Integer.toString( date[i].getHours()).equals("12") || Integer.toString( date[i].getHours()).equals("15")|| Integer.toString( date[i].getHours()).equals("18") || Integer.toString( date[i].getHours()).equals("21")){
-		    			mRenderer.addXTextLabel(i+1, Integer.toString(date[i].getHours()) );
+		    		else if( date[i].getHours().equals("3") || date[i].getHours().equals("6") || 
+		    				 date[i].getHours().equals("9") || date[i].getHours().equals("12") || 
+		    				 date[i].getHours().equals("15")|| date[i].getHours().equals("18") ||
+		    				 date[i].getHours().equals("21")){
+		    			mRenderer.addXTextLabel(i+1, date[i].getHours() );
 		    			i++;
 		    			mRenderer.addXTextLabel(i+1, "");
 		    		}
@@ -169,19 +173,22 @@ public class Graph {
 		    	for (int i = 0; i < date.length; i++) { 
 		    		// print the first Y value of chart with the date
 		    		if(i==0 ){
-		    			mRenderer.addXTextLabel(i+1, date[i].getHours()+"\n"+ date[i].getDate()+"/"+ date[i].getMonth());
+		    			mRenderer.addXTextLabel(i+1, date[i].getHours()+"\n"+ date[i].getDay()+"/"+ date[i].getMonth());
 		    			i++;
 		    			mRenderer.addXTextLabel(i+1, "");
 		    		}
 		    		// print the last Y value of chart or the midnight Y value
-		    		else if( Integer.toString( date[i].getHours()).equals("0")  ){
-		    			mRenderer.addXTextLabel(i+1, "00" + "\n"+ date[i].getDate()+"/"+ date[i].getMonth());
+		    		else if( date[i].getHours().equals("0")  ){
+		    			mRenderer.addXTextLabel(i+1, "24" + "\n"+ date[i].getDay()+"/"+ date[i].getMonth());
 		    			i++;
 		    			mRenderer.addXTextLabel(i+1, "");
 		    		}
 		    		// print all the hour 3, 6, 9, 12, 15, 18, 21, 00
-		    		else if( Integer.toString( date[i].getHours()).equals("3") ||  Integer.toString( date[i].getHours()).equals("6") || Integer.toString( date[i].getHours()).equals("9") || Integer.toString( date[i].getHours()).equals("12") || Integer.toString( date[i].getHours()).equals("15")|| Integer.toString( date[i].getHours()).equals("18") || Integer.toString( date[i].getHours()).equals("21")){
-		    			mRenderer.addXTextLabel(i+1, Integer.toString(date[i].getHours()) );
+		    		else if( date[i].getHours().equals("3") || date[i].getHours().equals("6") || 
+		    				 date[i].getHours().equals("9") || date[i].getHours().equals("12") ||
+		    				 date[i].getHours().equals("15")|| date[i].getHours().equals("18") ||
+		    				 date[i].getHours().equals("21")){
+		    			mRenderer.addXTextLabel(i+1,date[i].getHours() );
 		    			i++;
 		    			mRenderer.addXTextLabel(i+1, "");
 		    		}
@@ -258,7 +265,8 @@ public class Graph {
 	 * set the title of chart
 	 */
 	public void setTitle(){
-		title= (stationName + "\ndati dal "+ date[0].getDate()+"/"+ date[0].getMonth()+ " al " + date[date.length-1].getDate() +"/"+ date[date.length-1].getMonth());
+		title= (stationName + "\ndati dal "+ date[0].getDay()+"/"+ date[0].getMonth()
+				+" al " + date[date.length-1].getDay() +"/"+ date[date.length-1].getMonth());
 	}	
 	
 	
@@ -271,16 +279,16 @@ public class Graph {
 	
 	
 	public void setUnitMeasurement(String unitMeasurement){
-		if(unitMeasurement.equals(Global.KEY_METER))
-			this.unitMeasurement=Global.KEY_METER_WORD;
+		if(unitMeasurement.equals(Util.KEY_METER))
+			this.unitMeasurement=Util.KEY_METER_WORD;
 		else
-			this.unitMeasurement=Global.KEY_MILLIMETER_WORD;
+			this.unitMeasurement=Util.KEY_MILLIMETER_WORD;
 	}
 
 	
 	public void setType(String type){
 		this.type=type;
-		if(type.equals( Global.KEY_LIVIDRO) )
+		if(type.equals( Util.KEY_LIVIDRO) )
 			legend=context.getString(R.string.lividroLegend);
 		else
 			legend=context.getString(R.string.precLegend);

@@ -2,7 +2,7 @@ package it.arpav.mobile.apparpav.utils;
 
 import it.arpav.mobile.apparpav.exceptions.MalformedXmlExc;
 import it.arpav.mobile.apparpav.exceptions.XmlNullExc;
-import it.arpav.mobile.apparpav.types.Station;
+import it.arpav.mobile.apparpav.model.Station;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -19,8 +19,25 @@ import android.net.NetworkInfo;
  * @author Giacomo Lorigiola
  */
 public class Util {
+	// type station key
+	public static final String KEY_IDRO = 		"IDRO";
+	public static final String KEY_METEO = 		"METEO";
+	public static final String KEY_IDRO_METEO = "IDRO-METEO";
+	
+	// type sensor key
+	public static final String KEY_TYPE = 			  "TIPO";
+	public static final String KEY_LIVIDRO = 		  "LIVIDRO";
+	public static final String KEY_PREC = 			  "PREC";
+	public static final String KEY_UNIT_MEASUREMENT = "UNITAMISURA";
+	public static final String KEY_METER = 			  "m";
+	public static final String KEY_METER_WORD =       "metri";
+	public static final String KEY_MILLIMETER_WORD  = "millimetri";
+	
+	
+	
 	static private String KEY_INDEX_STATIONS_URL= "http://www.arpa.veneto.it/upload_teolo/dati_xml/Ultime48ore_idx.xml";
 	static private List<ArrayList<Station>> listStations =null;
+		
 	
 	/**
 	 * Check for internet connection.

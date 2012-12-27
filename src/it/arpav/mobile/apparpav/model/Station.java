@@ -1,4 +1,4 @@
-package it.arpav.mobile.apparpav.types;
+package it.arpav.mobile.apparpav.model;
 
 
 /**

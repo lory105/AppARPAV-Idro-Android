@@ -1,13 +1,12 @@
 package it.arpav.mobile.apparpav.utils;
 
-import it.arpav.mobile.apparpav.types.SensorData;
-import it.arpav.mobile.apparpav.types.Station;
+import it.arpav.mobile.apparpav.model.SensorData;
+import it.arpav.mobile.apparpav.model.Station;
 
 import java.io.IOException;
 import java.io.StringReader;
 import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
 
 import javax.xml.parsers.DocumentBuilder;
@@ -58,7 +57,7 @@ public class XMLParser {
 	
 	/**
 	 * Reads an xml file from an url with Http request, and return a string of xml file
-	*/
+	 */
 	public String getXmlFromUrl(String url) {
         String xml = null;
  
@@ -145,11 +144,11 @@ public class XMLParser {
 			station.setLink( getValue(elementStation, KEY_LINK) );
 			station.setType( getValue(elementStation, KEY_TYPE) );
             
-			if( station.getType().equals( Global.KEY_IDRO))
+			if( station.getType().equals( Util.KEY_IDRO))
 				idroStationList.add(station);
-			else if( station.getType().equals( Global.KEY_METEO))
+			else if( station.getType().equals( Util.KEY_METEO))
 				meteoStationList.add(station);
-			else if( station.getType().equals( Global.KEY_IDRO_METEO))
+			else if( station.getType().equals( Util.KEY_IDRO_METEO))
 				idroMeteoStationList.add(station);
             
         }
@@ -166,9 +165,7 @@ public class XMLParser {
 	public void parseXmlStationData(Document doc, Station station){
 		
 		String type = null;
-		Date[] datee = null;
-		
-		String[]date = null;
+		Date[] date = null;
 		String[] time = null;
 		String unitMeasurement = null;
 		double[] value = null;
@@ -181,19 +178,18 @@ public class XMLParser {
 			Element elementSensor = (Element) nodesSensor.item(i);
 			
 			// set unity of measurement of value, and type sensor value
-		    NodeList nodeUnitMeasurement = elementSensor.getElementsByTagName(Global.KEY_UNIT_MEASUREMENT);
+		    NodeList nodeUnitMeasurement = elementSensor.getElementsByTagName(Util.KEY_UNIT_MEASUREMENT);
 		    Element elementUnitMeasurement = (Element) nodeUnitMeasurement.item(0);
 		    unitMeasurement=  getCharacterDataFromElement(elementUnitMeasurement) ;
 			
-		    type = getValue(elementSensor, Global.KEY_TYPE);
+		    type = getValue(elementSensor, Util.KEY_TYPE);
 		    
-			if( type.equals(Global.KEY_LIVIDRO) || type.equals(Global.KEY_PREC) ){
+			if( type.equals(Util.KEY_LIVIDRO) || type.equals(Util.KEY_PREC) ){
 				
 				NodeList nodesValue = elementSensor.getElementsByTagName(KEY_VALUE);
 				
 				int size = nodesValue.getLength();
-				datee = new Date[size];
-				date = new String[size];
+				date = new Date[size];
 				time = new String[size];
 				value = new double[size];
 				
@@ -204,16 +200,17 @@ public class XMLParser {
 					// elaborate the attribute "istante" of "VALORE" tag: divide date and time
 					String instantValue = elementValue.getAttribute(KEY_INSTANT);
 					// create the date and time for the x value
-					datee[x] = new Date( stringToInt(instantValue.substring(0, 4)), stringToInt(instantValue.substring(4, 6)), stringToInt(instantValue.substring(6, 8)), stringToInt(instantValue.substring(8, 10)), stringToInt(instantValue.substring(10, 12)));
+					date[x] = new Date( instantValue.substring(0, 4), instantValue.substring(4, 6), instantValue.substring(6, 8), 
+							             instantValue.substring(8, 10), instantValue.substring(10, 12));
 					
-					date[x] = instantValue.substring(6, 8) +"/"+ instantValue.substring(4, 6) +"/"+ instantValue.substring(0, 4);
+					
 					time[x]= instantValue.substring(8, 10)+":"+instantValue.substring(10, 12);
 
 				}
 				if(type.equals(KEY_LIVIDRO))
-					station.setLividroSensorData( new SensorData( type, datee, unitMeasurement, value));
+					station.setLividroSensorData( new SensorData( type, date, unitMeasurement, value));
 				else if(type.equals(KEY_PREC))
-					station.setPrecSensorData( new SensorData( type, datee, unitMeasurement, value));
+					station.setPrecSensorData( new SensorData( type, date, unitMeasurement, value));
 			}
 		
 		}

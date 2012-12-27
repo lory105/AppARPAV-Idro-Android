@@ -2,9 +2,9 @@ package it.arpav.mobile.apparpav.main;
 
 import it.arpav.mobile.apparpav.exceptions.MalformedXmlExc;
 import it.arpav.mobile.apparpav.exceptions.XmlNullExc;
-import it.arpav.mobile.apparpav.types.Station;
 import it.arpav.mobile.apparpav.utils.Util;
 import it.arpav.mobile.apparpav.main.menu.*;
+import it.arpav.mobile.apparpav.model.Station;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -41,7 +41,7 @@ import com.readystatesoftware.maps.TapControlledMapView;
 
 /**
  * Main activity for view the google maps
- * @author Giacom Lorigiola
+ * @author Giacomo Lorigiola
  */
 public class MapStationActivity extends MapActivity {
 	
